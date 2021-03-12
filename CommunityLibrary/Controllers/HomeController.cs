@@ -12,15 +12,19 @@ namespace CommunityLibrary.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-
-        public HomeController(ILogger<HomeController> logger)
-        {
-            _logger = logger;
-        }
+        private readonly LibraryDAL _libraryDAL = new LibraryDAL();
 
         public IActionResult Index()
         {
-            return View();
+            /*            List<Doc> results = new List<Doc>();
+
+                        results = _libraryDAL.GetSearchTitles("fsdfsdfsdfsdfsdf");*/
+
+            BookInfo bookInfo = new BookInfo();
+
+            bookInfo = _libraryDAL.GetBookInfo("/isbn/9780140328721");
+
+            return View(bookInfo);
         }
 
         public IActionResult Privacy()
