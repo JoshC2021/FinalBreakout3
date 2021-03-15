@@ -21,6 +21,8 @@ namespace CommunityLibrary.Models
         public int? CumulatvieRating { get; set; }
         public string ProfileImage { get; set; }
         public string UserId { get; set; }
+        public string Latitude { get; set; }
+        public string Longitude { get; set; }
 
         public virtual AspNetUser UserNavigation { get; set; }
         public virtual ICollection<Book> BookBookOwnerNavigations { get; set; }
