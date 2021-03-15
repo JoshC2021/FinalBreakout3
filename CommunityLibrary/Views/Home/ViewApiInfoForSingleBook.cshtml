@@ -26,14 +26,18 @@
 
         <h4>Description</h4>
         <p>@Model.description</p>
-        <h4>Author:</h4>
-        @foreach (Author author in Model.authors)
-        {
-            int authorImgId = author.photos.First();
-            string authorImageSrc = $"http://covers.openlibrary.org/a/id/{authorImgId}-M.jpg";
-            <img src="@authorImageSrc" alt="Alternate Text" width="100" />
-            <p>@author.name</p>
-        }
+        <div class="Authors">
+            <h4>Author(s):</h4>
+            @foreach (Author author in Model.authors)
+            {<div class="center">
+                    @{ int authorImgId = author.photos.First();
+                        string authorImageSrc = $"http://covers.openlibrary.org/a/id/{authorImgId}-M.jpg";
+                    }
+                    <img src="@authorImageSrc" alt="Alternate Text" width="100" />
+                    <p>@author.name</p>
+                </div>
+            }
+        </div>
         <h6>Subject(s):</h6>
         <p>
             @{
@@ -91,8 +95,11 @@
             background-color: whitesmoke;
             color: black;
         }
+    .Authors {
+        display:flex;
+    }
         .center{
-            display:flex;
+            flex:1;
             align-content:center;
             justify-content:center;
         }
