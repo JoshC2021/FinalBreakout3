@@ -1,4 +1,5 @@
 ﻿using CommunityLibrary.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -78,7 +79,7 @@ namespace CommunityLibrary.Controllers
         }
         public IActionResult ViewApiInfoForSingleBook(/*string bookId*/)
         {
-          //Switch this out to the parameter
+            //Switch this out to the parameter
             string bookId = "/works/OL453936W";
             BookInfo apiBook = _libraryDAL.GetBookInfo(bookId);
             List<Author> authors = new List<Author>();
@@ -92,6 +93,31 @@ namespace CommunityLibrary.Controllers
             }
             apiBook.authors = authors;
             return View(apiBook);
+        }
+        [Authorize]
+        public IActionResult AddBookToLibrary(string bookId)
+        {
+            string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            User currentUser = _libraryDB.Users.First(x => x.UserId == user);
+            List<Book> personalLibrary = _libraryDB.Books.Where(x => x.BookOwner == currentUser.Id).ToList();
+            if (personalLibrary.Where(x => x.TitleIdApi == bookId).Count() > 0)
+            {
+                //Book already exists in their personal library--should libraries be allowed to have more than 1 copy of the same book?
+                return View();
+            }
+            else
+            {
+                Book newLibraryBook = new Book();
+                newLibraryBook.AvailibilityStatus = true;
+                newLibraryBook.LoanPeriod = 14;
+                newLibraryBook.CurrentHolder = currentUser.Id;
+                newLibraryBook.BookOwner = currentUser.Id;
+                newLibraryBook.TitleIdApi = bookId;
+                _libraryDB.Books.Add(newLibraryBook);
+                _libraryDB.SaveChanges();
+                return RedirectToAction("Index");
+            }
+
         }
         public IActionResult Privacy()
         {
