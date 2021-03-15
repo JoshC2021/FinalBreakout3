@@ -10,6 +10,18 @@ namespace CommunityLibrary.Models
 {
     public class LibraryDAL
     {
+        private string GetSearchData(string title)
+        {
+            string url = @$"https://openlibrary.org/search.json?q={title}";
+            HttpWebRequest request = WebRequest.CreateHttp(url);
+            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+
+            StreamReader reader = new StreamReader(response.GetResponseStream());
+            string JSON = reader.ReadToEnd();
+
+            return JSON;
+        }
+
         private string GetSearchDataByTitle(string title)
         {
             string url = @$"https://openlibrary.org/search.json?title={title}";

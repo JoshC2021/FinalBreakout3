@@ -75,6 +75,9 @@ namespace CommunityLibrary.Controllers
 
         public IActionResult SearchByTitle()
         {
+            string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            User currentUser = _libraryDB.Users.First(x => x.UserId == user);
+
             List<Doc> results = new List<Doc>();
             results = _libraryDAL.GetSearchTitles("Lord of the Rings");
 
