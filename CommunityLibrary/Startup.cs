@@ -1,4 +1,5 @@
 using CommunityLibrary.Data;
+using CommunityLibrary.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -17,6 +18,7 @@ namespace CommunityLibrary
 {
     public class Startup
     {
+        string connection = "Server=.\\SQLExpress;Database=LibraryDb;Trusted_Connection=True;MultipleActiveResultSets=true";
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -35,6 +37,8 @@ namespace CommunityLibrary
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddControllersWithViews();
+
+            services.AddDbContext<LibraryDbContext>(options => options.UseSqlServer(connection));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
