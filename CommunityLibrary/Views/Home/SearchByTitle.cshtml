@@ -1,0 +1,23 @@
+﻿@model List<Doc>
+
+@foreach (var item in Model)
+{
+    <h3>@item.title</h3>
+
+    if (item.author_name != null)
+    {
+        <p>@item.author_name[0]</p>
+    }
+
+    if (item.cover_i == 0)
+    {
+        <img src="https://via.placeholder.com/500x750?text=Book+Cover" alt="No book cover image available for @item.title" />
+    }
+    else
+    {
+        var imagePath = $"http://covers.openlibrary.org/b/id/{item.cover_i}-M.jpg";
+
+        <img src="@imagePath" alt="Book cover for @item.title" />
+    }
+
+}

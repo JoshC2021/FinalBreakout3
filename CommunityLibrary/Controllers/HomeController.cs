@@ -25,10 +25,6 @@ namespace CommunityLibrary.Controllers
         }
         public IActionResult Index()
         {
-            /*            List<Doc> results = new List<Doc>();
-
-                        results = _libraryDAL.GetSearchTitles("fsdfsdfsdfsdfsdf");*/
-
             BookInfo bookInfo = new BookInfo();
 
             bookInfo = _libraryDAL.GetBookInfo("/isbn/9780140328721");
@@ -163,7 +159,6 @@ namespace CommunityLibrary.Controllers
                 Author apiAuthor = _libraryDAL.GetAuthorInfo(authorId);
 
                 authors.Add(apiAuthor);
-
             }
             apiBook.authors = authors;
             return View(apiBook);
@@ -193,6 +188,19 @@ namespace CommunityLibrary.Controllers
             }
 
         }
+        
+        public IActionResult SearchByTitle()
+        {
+            string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            User currentUser = _libraryDB.Users.First(x => x.UserId == user);
+
+            List<Doc> results = new List<Doc>();
+            results = _libraryDAL.GetSearchTitles("Lord of the Rings");
+
+            return View(results);
+
+        }
+        
         public IActionResult Privacy()
         {
             return View();

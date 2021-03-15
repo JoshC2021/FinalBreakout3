@@ -22,6 +22,18 @@ namespace CommunityLibrary.Models
             return JSON;
         }
 
+        private string GetSearchDataByTitle(string title)
+        {
+            string url = @$"https://openlibrary.org/search.json?title={title}";
+            HttpWebRequest request = WebRequest.CreateHttp(url);
+            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+
+            StreamReader reader = new StreamReader(response.GetResponseStream());
+            string JSON = reader.ReadToEnd();
+
+            return JSON;
+        }
+
         private string GetKeyData(string key)
         {
             string url = @$"https://openlibrary.org{key}.json";
@@ -51,7 +63,7 @@ namespace CommunityLibrary.Models
         }
         public List<Doc> GetSearchTitles(string title)
         {
-            string data = GetKeyData(title);
+            string data = GetSearchDataByTitle(title);
             SearchTitleResults searchTitleResults = JsonConvert.DeserializeObject<SearchTitleResults>(data);
 
             if (searchTitleResults.docs == null)
