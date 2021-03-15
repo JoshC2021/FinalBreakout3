@@ -1,4 +1,5 @@
 ﻿using CommunityLibrary.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
@@ -31,6 +32,81 @@ namespace CommunityLibrary.Controllers
             return View(bookInfo);
         }
 
+        [Authorize]
+        public IActionResult Profile()
+        {
+            string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            User currentUser = _libraryDB.Users.First(x => x.UserId == user);
+            return View(currentUser);
+        }
+
+        public IActionResult UpdateProfile(int Id)
+        {
+            User currentUser = _libraryDB.Users.First(x => x.Id == Id);
+            return View(currentUser);
+        }
+
+        [HttpPost]
+        public IActionResult UpdateProfile(User current)
+        {
+            if (ModelState.IsValid)
+            {
+                current.UserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                List<Result> latLng = _googleDAL.GetResults(current.UserLocation);
+                // check to see if user address exists
+                if(latLng.Count != 0)
+                {
+                    // set top match to user's location
+                    current.Latitude = latLng[0].geometry.location.lat.ToString();
+                    current.Longitude = latLng[0].geometry.location.lng.ToString();
+                }
+                _libraryDB.Users.Update(current);
+                _libraryDB.SaveChanges();
+            }
+            return RedirectToAction("Profile");
+        }
+
+        public IActionResult Transactions(int Id)
+        {
+            User currentUser = _libraryDB.Users.First(x => x.Id == Id);
+            TempData["CurrentUser"] = currentUser.Id;
+            List<Loan> userLoans = _libraryDB.Loans.Where(x => x.BookLoaner == currentUser.Id || x.BookOwner == currentUser.Id).ToList();
+            return View(userLoans);
+        }
+
+        public IActionResult Approval(int loanId)
+        {
+            Loan currentLoan = _libraryDB.Loans.First(x=> x.Id == loanId);
+            Approval loanDetails = new Approval();
+            loanDetails.LoanInfo = currentLoan;
+
+            User renterInfo = _libraryDB.Users.First(x => x.Id == currentLoan.BookLoaner);
+            loanDetails.ProfileImage = renterInfo.ProfileImage;
+
+            Book loanedBook = _libraryDB.Books.First(x => x.Id == currentLoan.BookId);
+            loanDetails.BookTitle = _libraryDAL.GetBookInfo(loanedBook.TitleIdApi).title;
+
+            return View(loanDetails);
+        }
+
+        [HttpPost]
+        public IActionResult Approval(Loan approvalUpdate)
+        {
+            Loan oldDetails = _libraryDB.Loans.First(x => x.Id == approvalUpdate.Id);
+            oldDetails.LoanStatus = approvalUpdate.LoanStatus;
+            if(oldDetails.LoanStatus)
+            {
+                // set DueDate
+                
+                _libraryDB.Loans.Update(oldDetails);
+            }
+            else
+            {
+                _libraryDB.Loans.Update(oldDetails);
+            }
+            return RedirectToAction("Profile");
+        }
+
         public IActionResult UserMap()
         {
 
@@ -39,7 +115,6 @@ namespace CommunityLibrary.Controllers
             User currentUser = _libraryDB.Users.First(x => x.UserId == user);
             TempData["lat"] = currentUser.Latitude;
             TempData["lng"] = currentUser.Longitude;
-
 
             // grab  everyone else's lat and lng from table
             // create a marker list of lat and lngs close to user
@@ -72,7 +147,48 @@ namespace CommunityLibrary.Controllers
 
             return View(withinDistance);
         }
+        public IActionResult ViewApiInfoForSingleBook(/*string bookId*/)
+        {
+            //Switch this out to the parameter
+            string bookId = "/works/OL453936W";
+            BookInfo apiBook = _libraryDAL.GetBookInfo(bookId);
+            List<Author> authors = new List<Author>();
+            foreach (Author author in apiBook.authors)
+            {
+                string authorId = author.author.key;
+                Author apiAuthor = _libraryDAL.GetAuthorInfo(authorId);
 
+                authors.Add(apiAuthor);
+            }
+            apiBook.authors = authors;
+            return View(apiBook);
+        }
+        [Authorize]
+        public IActionResult AddBookToLibrary(string bookId)
+        {
+            string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            User currentUser = _libraryDB.Users.First(x => x.UserId == user);
+            List<Book> personalLibrary = _libraryDB.Books.Where(x => x.BookOwner == currentUser.Id).ToList();
+            if (personalLibrary.Where(x => x.TitleIdApi == bookId).Count() > 0)
+            {
+                //Book already exists in their personal library--should libraries be allowed to have more than 1 copy of the same book?
+                return View();
+            }
+            else
+            {
+                Book newLibraryBook = new Book();
+                newLibraryBook.AvailibilityStatus = true;
+                newLibraryBook.LoanPeriod = 14;
+                newLibraryBook.CurrentHolder = currentUser.Id;
+                newLibraryBook.BookOwner = currentUser.Id;
+                newLibraryBook.TitleIdApi = bookId;
+                _libraryDB.Books.Add(newLibraryBook);
+                _libraryDB.SaveChanges();
+                return RedirectToAction("Index");
+            }
+
+        }
+        
         public IActionResult SearchByTitle()
         {
             string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
@@ -84,7 +200,7 @@ namespace CommunityLibrary.Controllers
             return View(results);
 
         }
-
+        
         public IActionResult Privacy()
         {
             return View();
