@@ -1,0 +1,103 @@
+﻿@model BookInfo
+
+@{int coverId = Model.covers.Where(x => x > 0).First();
+    string imgSrc = $"http://covers.openlibrary.org/b/id/{coverId}.jpg";
+    int allSubject = Model.subjects.Length; 
+    
+    }
+<div class="center">
+    @foreach (var item in Model.covers)
+    {
+        if (item > 0)
+        {
+            string coverIds = $"http://covers.openlibrary.org/b/id/{item}.jpg";
+            <img src="@coverIds" alt="Alternate Text" width="100" />
+        }
+
+    }
+</div>
+
+
+<h2 class="text">@Model.title</h2>
+<div class="container">
+    <img src="@imgSrc" alt="Alternate Text" class="sideBySide" width="500"/>
+    <div class="text sideBySide">
+
+
+        <h4>Description</h4>
+        <p>@Model.description</p>
+        <h4>Author:</h4>
+        @foreach (Author author in Model.authors)
+        {
+            int authorImgId = author.photos.First();
+            string authorImageSrc = $"http://covers.openlibrary.org/a/id/{authorImgId}-M.jpg";
+            <img src="@authorImageSrc" alt="Alternate Text" width="100" />
+            <p>@author.name</p>
+        }
+        <h6>Subject(s):</h6>
+        <p>
+            @{
+                int biterator = 0;
+            }
+            @foreach (string subject in Model.subjects)
+            {
+                @subject
+                if (++biterator != allSubject)
+                {
+                    @:,
+                }
+            }
+        </p>
+        <h6>Released:</h6>
+        <p>@Model.created.value.ToShortDateString()</p>
+
+        <a asp-action="AddToLibrary" asp-controller="Home" asp-route-id="@Model.key">
+            <button>
+                Add Book To My Library
+            </button>
+        </a>
+    </div>
+</div>
+
+<style>
+        @*body{
+            background-image:url(@backdropSrc);
+        }*@
+
+        .text {
+            background-color: rgba(255, 255, 255,.8);
+
+            padding:25px;
+            border-radius: 25px;
+        }
+        .container{
+            display: flex;
+        }
+        .sideBySide {
+            flex: 1;
+            border-radius: 25px;
+        }
+        .sideBySide:first-child{
+            margin-right: 20px;
+        }
+        a{
+            justify-content: center;
+        }
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+            background-color: whitesmoke;
+            color: black;
+        }
+        .center{
+            display:flex;
+            align-content:center;
+            justify-content:center;
+        }
+            button:hover {
+                color: rgb(109,178,164);
+                background-color: rgba(242,107,58, .2);
+            }
+</style>

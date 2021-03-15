@@ -76,7 +76,23 @@ namespace CommunityLibrary.Controllers
 
             return View(withinDistance);
         }
+        public IActionResult ViewApiInfoForSingleBook(/*string bookId*/)
+        {
+          //Switch this out to the parameter
+            string bookId = "/works/OL45883W";
+            BookInfo apiBook = _libraryDAL.GetBookInfo(bookId);
+            List<Author> authors = new List<Author>();
+            foreach (Author author in apiBook.authors)
+            {
+                string authorId = author.author.key;
+                Author apiAuthor = _libraryDAL.GetAuthorInfo(authorId);
 
+                authors.Add(apiAuthor);
+
+            }
+            apiBook.authors = authors;
+            return View(apiBook);
+        }
         public IActionResult Privacy()
         {
             return View();
