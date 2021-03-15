@@ -55,7 +55,7 @@
         <h6>Released:</h6>
         <p>@Model.created.value.ToShortDateString()</p>
 
-        <a asp-action="AddToLibrary" asp-controller="Home" asp-route-id="@Model.key">
+        <a asp-action="AddBookToLibrary" asp-controller="Home" asp-route-bookId="@Model.key">
             <button>
                 Add Book To My Library
             </button>
