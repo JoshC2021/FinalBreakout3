@@ -10,9 +10,9 @@ namespace CommunityLibrary.Models
 {
     public class LibraryDAL
     {
-        private string GetSearchData(string title)
+        private string GetSearchDataByTitle(string title)
         {
-            string url = @$"https://openlibrary.org/search.json?q={title}";
+            string url = @$"https://openlibrary.org/search.json?title={title}";
             HttpWebRequest request = WebRequest.CreateHttp(url);
             HttpWebResponse response = (HttpWebResponse)request.GetResponse();
 
@@ -46,7 +46,7 @@ namespace CommunityLibrary.Models
 
         public List<Doc> GetSearchTitles(string title)
         {
-            string data = GetKeyData(title);
+            string data = GetSearchDataByTitle(title);
             SearchTitleResults searchTitleResults = JsonConvert.DeserializeObject<SearchTitleResults>(data);
 
             if (searchTitleResults.docs == null)

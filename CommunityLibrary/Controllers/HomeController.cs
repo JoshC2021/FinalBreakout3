@@ -24,10 +24,6 @@ namespace CommunityLibrary.Controllers
         }
         public IActionResult Index()
         {
-            /*            List<Doc> results = new List<Doc>();
-
-                        results = _libraryDAL.GetSearchTitles("fsdfsdfsdfsdfsdf");*/
-
             BookInfo bookInfo = new BookInfo();
 
             bookInfo = _libraryDAL.GetBookInfo("/isbn/9780140328721");
@@ -75,6 +71,15 @@ namespace CommunityLibrary.Controllers
             }
 
             return View(withinDistance);
+        }
+
+        public IActionResult SearchByTitle()
+        {
+            List<Doc> results = new List<Doc>();
+            results = _libraryDAL.GetSearchTitles("Lord of the Rings");
+
+            return View(results);
+
         }
 
         public IActionResult Privacy()
