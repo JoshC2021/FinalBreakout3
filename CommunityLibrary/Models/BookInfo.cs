@@ -14,7 +14,7 @@ namespace CommunityLibrary.Models
         public string[] subjects { get; set; }
         public string[] subject_people { get; set; }
         public string key { get; set; }
-        public Author[] authors { get; set; }
+        public List<Author> authors { get; set; }
         public string[] subject_times { get; set; }
         public Type type { get; set; }
         public int latest_revision { get; set; }
@@ -42,16 +42,51 @@ namespace CommunityLibrary.Models
 
     public class Author
     {
+
+        public Bio bio { get; set; }
+        public string name { get; set; }
+        public Link[] links { get; set; }
+        public string personal_name { get; set; }
+        public string death_date { get; set; }
+        public string[] alternate_names { get; set; }
+        public Created created { get; set; }
+        public int[] photos { get; set; }
+        public Last_Modified last_modified { get; set; }
+        public int latest_revision { get; set; }
+        public string key { get; set; }
+        public string birth_date { get; set; }
+        public int revision { get; set; }
+        public Type type { get; set; }
+        public Remote_Ids remote_ids { get; set; }
         public Author1 author { get; set; }
-        public Type1 type { get; set; }
+
+    }
+    public class Bio
+    {
+        public string type { get; set; }
+        public string value { get; set; }
+    }
+    public class Remote_Ids
+    {
+        public string viaf { get; set; }
+        public string wikidata { get; set; }
+        public string isni { get; set; }
     }
 
-    public class Author1
+    public class Link
+    {
+        public string url { get; set; }
+        public Type1 type { get; set; }
+        public string title { get; set; }
+    }
+
+    public class Type1
     {
         public string key { get; set; }
     }
 
-    public class Type1
+
+    public class Author1
     {
         public string key { get; set; }
     }

@@ -43,7 +43,12 @@ namespace CommunityLibrary.Models
             return bookInfo;
 
         }
-
+        public Author GetAuthorInfo(string key)
+        {
+            string data = GetKeyData(key);
+            Author authorInfo = JsonConvert.DeserializeObject<Author>(data);
+            return authorInfo;
+        }
         public List<Doc> GetSearchTitles(string title)
         {
             string data = GetKeyData(title);
