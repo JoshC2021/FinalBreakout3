@@ -37,33 +37,34 @@ namespace CommunityLibrary.Controllers
 
         public IActionResult UserMap()
         {
+
             // Grab users lat and lng
             string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             User currentUser = _libraryDB.Users.First(x => x.UserId == user);
-            TempData["lat"] = currentUser.lattitude;
-            TempData["lng"] = currentUser.longitude;
+            TempData["lat"] = currentUser.Latitude;
+            TempData["lng"] = currentUser.Longitude;
 
 
             // grab  everyone else's lat and lng from table
             // create a marker list of lat and lngs close to user
             List<User> notLogged = _libraryDB.Users.Where(x => x.UserId != user).ToList();
-            List<string> marker = new List<string>();
+            List<User> withinDistance = new List<User>();
             int max = 0; // only show so many libraries
 
             const double radConv = Math.PI / 180;
             const int R = 6371; // radius of earth in km
             const int d = 20; // only show libraries within 20km
-            double userLat = currentUser.lattitude * radConv;
+            double userLat = Double.Parse(currentUser.Latitude) * radConv;
             double otherLat;
             double deltaLng;
             foreach (User other in notLogged)
             {
-                otherLat = other.lattitude * radConv;
-                deltaLng = currentUser.longitude - other.longitude;
+                otherLat = Double.Parse(other.Latitude) * radConv;
+                deltaLng = Double.Parse(currentUser.Longitude) - Double.Parse(other.Longitude);
 
                 if ((Math.Acos(Math.Sin(userLat) * Math.Sin(otherLat) + Math.Cos(userLat) * Math.Cos(otherLat) * Math.Cos(deltaLng)) * R) < d)
                 {
-                    marker.Add($"{other.lattitude}, {other.longitude}");
+                    withinDistance.Add(other);
                 }
 
                 if (max >= 15)
@@ -73,9 +74,7 @@ namespace CommunityLibrary.Controllers
                 max++;
             }
 
-            return View(marker);
-
-            return View();
+            return View(withinDistance);
         }
 
         public IActionResult Privacy()
