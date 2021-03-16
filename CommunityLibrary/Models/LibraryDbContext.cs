@@ -204,9 +204,9 @@ namespace CommunityLibrary.Models
                     .HasMaxLength(25)
                     .IsUnicode(false);
 
-
-                entity.Property(e => e.ProfileImage).HasMaxLength(255);
-
+                entity.Property(e => e.ProfileImage)
+                    .HasMaxLength(255)
+                    .IsUnicode(false);
 
                 entity.Property(e => e.UserId).HasMaxLength(450);
 

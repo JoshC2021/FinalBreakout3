@@ -178,7 +178,7 @@ namespace CommunityLibrary.Controllers
             apiBook.authors = authors;
             return View(apiBook);
         }
-        [Authorize]
+       
         public IActionResult AddBookToLibrary(string bookId)
         {
             string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
@@ -203,7 +203,45 @@ namespace CommunityLibrary.Controllers
             }
 
         }
-        [Authorize]
+
+        public IActionResult MyLibrary()
+        {
+            string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            User currentUser = _libraryDB.Users.First(x => x.UserId == user);
+            List<Book> dbPersonalLibrary = _libraryDB.Books.Where(x => x.BookOwner == currentUser.Id).ToList();
+
+            List<LibraryBook> libraryBooks= new List<LibraryBook>();
+
+            foreach (Book book in dbPersonalLibrary)
+            {
+                BookInfo apiBook = _libraryDAL.GetBookInfo(book.TitleIdApi);
+                List<Author> authors = new List<Author>();
+                foreach (Author author in apiBook.authors)
+                {
+                    string authorId = author.author.key;
+                    Author apiAuthor = _libraryDAL.GetAuthorInfo(authorId);
+
+                    authors.Add(apiAuthor);
+                }
+                apiBook.authors = authors;
+                LibraryBook libraryBook = new LibraryBook();
+                
+                User bookHolder = _libraryDB.Users.First(x => x.Id == book.CurrentHolder);
+                AspNetUser identityBookHolder = _libraryDB.AspNetUsers.First(x => x.Id == bookHolder.UserId);
+
+                User bookOwner = _libraryDB.Users.First(x => x.Id == book.BookOwner);
+                AspNetUser identityBookOwner = _libraryDB.AspNetUsers.First(x => x.Id == bookOwner.UserId);
+                libraryBook.ApiBook = apiBook;
+                libraryBook.DbBook = book;
+                libraryBook.BookOwner = identityBookOwner;
+                libraryBook.BookHolder = identityBookHolder;
+                libraryBooks.Add(libraryBook);
+            }
+            
+          
+            return View(libraryBooks);
+        }
+        
         public IActionResult ReviewBook(string bookId)
         {
             string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
@@ -222,7 +260,7 @@ namespace CommunityLibrary.Controllers
                 return View(apiBook);
             }
         }
-        [Authorize]
+        
         [HttpPost]
         public IActionResult ReviewBook(BookReview bookReview)
         {
@@ -239,7 +277,7 @@ namespace CommunityLibrary.Controllers
             //We need validation in case that doesn't work
             return View();
         }
-        [Authorize]
+        
         public IActionResult MyBookReviews()
         {
             string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
