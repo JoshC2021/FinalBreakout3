@@ -4,10 +4,10 @@
 }
 
 <h2>Current Rentals</h2>
-@foreach (Loan l in Model.Where(x => x.BookOwner == userId && x.LoanStatus))
+@foreach (Loan l in Model.Where(x => x.IsOwner(userId) && x.LoanStatus))
 {
     <p>Rental #@l.Id</p>
-    if (l.DueDate == DateTime.MinValue)
+    if (l.IsDueDateSet())
     {
         @Html.ActionLink("Approve", "Approval", "Home", new { loanId = l.Id })
     }
@@ -23,7 +23,7 @@
 @foreach (Loan l in Model.Where(x => x.BookLoaner == userId && x.LoanStatus))
 {
     <p>Rental #@l.Id</p>
-    if (l.DueDate == DateTime.MinValue)
+    if (l.IsDueDateSet())
     {
         @Html.ActionLink("Pending Details", "Approval", "Home", new { loanId = l.Id })
     }

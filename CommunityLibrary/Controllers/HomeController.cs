@@ -76,6 +76,10 @@ namespace CommunityLibrary.Controllers
 
         public IActionResult Approval(int loanId)
         {
+            string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            User currentUser = _libraryDB.Users.First(x => x.UserId == user);
+            TempData["CurrentUser"] = currentUser.Id;
+
             Loan currentLoan = _libraryDB.Loans.First(x=> x.Id == loanId);
             Approval loanDetails = new Approval();
             loanDetails.LoanInfo = currentLoan;
@@ -92,12 +96,17 @@ namespace CommunityLibrary.Controllers
         [HttpPost]
         public IActionResult Approval(Loan approvalUpdate)
         {
+
             Loan oldDetails = _libraryDB.Loans.First(x => x.Id == approvalUpdate.Id);
             oldDetails.LoanStatus = approvalUpdate.LoanStatus;
             if(oldDetails.LoanStatus)
             {
                 // set DueDate
-                
+                Book loanedBook = _libraryDB.Books.First(x => x.Id == oldDetails.BookId);
+                DateTime due = DateTime.Today;
+                due = due.AddDays((double)loanedBook.LoanPeriod);
+                oldDetails.DueDate = due;
+
                 _libraryDB.Loans.Update(oldDetails);
             }
             else
