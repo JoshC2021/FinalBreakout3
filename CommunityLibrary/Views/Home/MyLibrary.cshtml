@@ -42,13 +42,13 @@
 
                 </div>
                 <div class="right">
-                    <a asp-action="ViewApiInforForSingleBook" asp-route-bookId="@book.DbBook.TitleIdApi">
+                    <a asp-action="ViewApiInfoForSingleBook" asp-route-bookId="@book.ApiBook.key">
                         <button class="right">
                             View Book Description
                         </button>
                     </a>
                     <br />
-                    <a asp-action="RemoveFromLibrary" asp-route-id="@book.DbBook.TitleIdApi">
+                    <a asp-action="RemoveFromLibrary" asp-route-bookId="@book.DbBook.Id">
                         <button>
                             Remove from Your Library
                         </button>
