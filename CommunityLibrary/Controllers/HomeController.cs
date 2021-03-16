@@ -1,6 +1,7 @@
 ﻿using CommunityLibrary.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -23,6 +24,7 @@ namespace CommunityLibrary.Controllers
         {
             _libraryDB = libraryContext;
         }
+        [AllowAnonymous]
         public IActionResult Index()
         {
             BookInfo bookInfo = new BookInfo();
@@ -32,7 +34,6 @@ namespace CommunityLibrary.Controllers
             return View(bookInfo);
         }
 
-        [Authorize]
         public IActionResult Profile()
         {
             string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
@@ -76,18 +77,20 @@ namespace CommunityLibrary.Controllers
         {
             User currentUser = _libraryDB.Users.First(x => x.Id == Id);
             TempData["CurrentUser"] = currentUser.Id;
+            // grab all loans user is involved in, both sides
             List<Loan> userLoans = _libraryDB.Loans.Where(x => x.BookLoaner == currentUser.Id || x.BookOwner == currentUser.Id).ToList();
             return View(userLoans);
         }
 
         public IActionResult Approval(int loanId)
         {
+            // Populate container with necessary info then send to view
             string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             User currentUser = _libraryDB.Users.First(x => x.UserId == user);
             TempData["CurrentUser"] = currentUser.Id;
 
             Loan currentLoan = _libraryDB.Loans.First(x=> x.Id == loanId);
-            Approval loanDetails = new Approval();
+            LoanContainer loanDetails = new LoanContainer();
             loanDetails.LoanInfo = currentLoan;
 
             User renterInfo = _libraryDB.Users.First(x => x.Id == currentLoan.BookLoaner);
@@ -104,23 +107,72 @@ namespace CommunityLibrary.Controllers
         {
 
             Loan oldDetails = _libraryDB.Loans.First(x => x.Id == approvalUpdate.Id);
+            Book loanedBook = _libraryDB.Books.First(x => x.Id == oldDetails.BookId);
+
+            // update status and comments
             oldDetails.LoanStatus = approvalUpdate.LoanStatus;
-            if(oldDetails.LoanStatus)
+            oldDetails.LoanerNote = approvalUpdate.LoanerNote;
+            oldDetails.OwnerNote = approvalUpdate.OwnerNote;
+
+            // newly approved rentals tasks
+            if(oldDetails.LoanStatus && !oldDetails.IsDueDateSet())
             {
                 // set DueDate
-                Book loanedBook = _libraryDB.Books.First(x => x.Id == oldDetails.BookId);
                 DateTime due = DateTime.Today;
                 due = due.AddDays((double)loanedBook.LoanPeriod);
                 oldDetails.DueDate = due;
 
-                _libraryDB.Loans.Update(oldDetails);
+                // update book status
+                loanedBook.AvailibilityStatus = false;
+                loanedBook.CurrentHolder = oldDetails.BookLoaner;
             }
-            else
+
+            // Remove denied rentals
+            if(!oldDetails.LoanStatus && !oldDetails.IsDueDateSet())
             {
-                _libraryDB.Loans.Update(oldDetails);
+                _libraryDB.Loans.Remove(oldDetails);
+                return RedirectToAction("Profile");
             }
+
+            // Ended transactions, revert book to owner
+            if(!oldDetails.LoanStatus)
+            {
+                loanedBook.AvailibilityStatus = true;
+                loanedBook.CurrentHolder = oldDetails.BookOwner;
+            }
+            _libraryDB.Loans.Update(oldDetails);
+
+
             return RedirectToAction("Profile");
         }
+
+
+        public IActionResult RequestLoan(int  bookId)
+        {
+            string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            User currentUser = _libraryDB.Users.First(x => x.UserId == user);
+
+            Loan newLoan = new Loan();
+
+            // grab user details
+            newLoan.BookLoaner = currentUser.Id;
+            newLoan.RecipientRating = currentUser.CumulatvieRating;
+
+
+            // grab book details
+            Book renting = _libraryDB.Books.First(x=> x.Id == bookId);
+            newLoan.BookId = bookId;
+
+            // grab owner details
+            User bookOwner = _libraryDB.Users.First(x => x.Id == renting.BookOwner);
+            newLoan.OwnerRating = bookOwner.CumulatvieRating;
+            newLoan.BookOwner = bookOwner.Id;
+                
+
+            // go to transaction page to see added request
+            return RedirectToAction("Transactions",currentUser.Id);
+        }
+
 
         public IActionResult UserMap()
         {
@@ -162,10 +214,8 @@ namespace CommunityLibrary.Controllers
 
             return View(withinDistance);
         }
-        public IActionResult ViewApiInfoForSingleBook(/*string bookId*/)
+        public IActionResult ViewApiInfoForSingleBook(string bookId)
         {
-            //Switch this out to the parameter
-            string bookId = "/works/OL453936W";
             BookInfo apiBook = _libraryDAL.GetBookInfo(bookId);
             List<Author> authors = new List<Author>();
             foreach (Author author in apiBook.authors)
@@ -178,7 +228,7 @@ namespace CommunityLibrary.Controllers
             apiBook.authors = authors;
             return View(apiBook);
         }
-       
+
         public IActionResult AddBookToLibrary(string bookId)
         {
             string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
@@ -203,6 +253,7 @@ namespace CommunityLibrary.Controllers
             }
 
         }
+
 
         public IActionResult MyLibrary()
         {
@@ -242,6 +293,7 @@ namespace CommunityLibrary.Controllers
             return View(libraryBooks);
         }
         
+
         public IActionResult ReviewBook(string bookId)
         {
             string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
@@ -260,7 +312,7 @@ namespace CommunityLibrary.Controllers
                 return View(apiBook);
             }
         }
-        
+
         [HttpPost]
         public IActionResult ReviewBook(BookReview bookReview)
         {
@@ -277,7 +329,7 @@ namespace CommunityLibrary.Controllers
             //We need validation in case that doesn't work
             return View();
         }
-        
+
         public IActionResult MyBookReviews()
         {
             string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
@@ -286,16 +338,22 @@ namespace CommunityLibrary.Controllers
 
             return View(myBookReviews);
         }
-        public IActionResult SearchByTitle()
+
+        public IActionResult Search()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult SearchResultsTitles(string query)
         {
             string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             User currentUser = _libraryDB.Users.First(x => x.UserId == user);
 
             List<Doc> results = new List<Doc>();
-            results = _libraryDAL.GetSearchTitles("Lord of the Rings");
+            results = _libraryDAL.GetSearchTitles(query);
 
             return View(results);
-
         }
         
         public IActionResult Privacy()
