@@ -1,0 +1,115 @@
+﻿@model List<LibraryBook>
+
+
+<h1>My Favorites</h1>
+<div class="stacked">
+    @foreach (LibraryBook book in Model)
+    {
+
+        <div class="box">
+
+            <div>
+                @{int coverId = book.ApiBook.covers.Where(x => x > 0).First();
+                    string imgSrc = $"http://covers.openlibrary.org/b/id/{coverId}.jpg";}
+
+                <img src=" @imgSrc" alt="@book." width="100" />
+            </div>
+            <div class="box2">
+                <div class="center">
+                    <h1>@book.ApiBook.title</h1>
+
+
+                    <h6>Author(s)</h6>
+                    <p>
+                        @foreach (Author author in book.ApiBook.authors)
+                        {
+                            @author.name@:,
+                        }
+                    </p>
+                    <h6>Book Availability:</h6>
+                    @if (book.DbBook.AvailibilityStatus == false)
+                    {
+                        <p>@book.BookHolder.UserName currently has this book checked out.</p>
+                    }
+                else
+                {
+                <p>This book is not currently checked out</p>
+                }
+                <h6>Loan Period:</h6>
+                <p>Users can check this book out for @book.DbBook.LoanPeriod days</p>
+
+
+
+                </div>
+                <div class="right">
+                    <a asp-action="ViewApiInforForSingleBook" asp-route-bookId="@book.DbBook.TitleIdApi">
+                        <button class="right">
+                            View Book Description
+                        </button>
+                    </a>
+                    <br />
+                    <a asp-action="RemoveFromLibrary" asp-route-id="@book.DbBook.TitleIdApi">
+                        <button>
+                            Remove from Your Library
+                        </button>
+                    </a>
+                    <a asp-action="EditLoanPeriod" asp-route-id="@book.DbBook.TitleIdApi">
+                        <button>
+                            Edit Loan Period
+                        </button>
+                    </a>
+
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    body {
+        background-color: black;
+        color: white;
+    }
+
+    .pb-3 {
+    }
+
+    .box {
+        background-color: whitesmoke;
+        padding: 25px;
+        border-radius: 25px;
+        display: flex;
+        margin: 25px;
+    }
+
+    .box2 {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        margin-left: 20px;
+    }
+
+    .right {
+        float: right;
+    }
+
+    .center {
+        float: left;
+        color: black;
+        font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    }
+
+    button {
+        margin: 10px;
+        padding: 10px 20px;
+        border-radius: 5px;
+        border: none;
+        background-color: rgb(249,139,58);
+        color: rgb(17,39,80);
+    }
+
+        button:hover {
+            color: rgb(109,178,164);
+            background-color: rgba(242,107,58, .2);
+        }
+</style>
