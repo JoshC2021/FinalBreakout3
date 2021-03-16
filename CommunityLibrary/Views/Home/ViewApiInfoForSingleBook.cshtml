@@ -2,18 +2,24 @@
 
 @{int coverId = Model.covers.Where(x => x > 0).First();
     string imgSrc = $"http://covers.openlibrary.org/b/id/{coverId}.jpg";
-    int allSubject = Model.subjects.Length; 
-    
+    int allSubject = Model.subjects.Length;
+
     }
-<div class="center">
+<div class="top">
+    @{ int max = 0;}
     @foreach (var item in Model.covers)
     {
         if (item > 0)
         {
             string coverIds = $"http://covers.openlibrary.org/b/id/{item}.jpg";
             <img src="@coverIds" alt="Alternate Text" width="100" />
-        }
+            max++;
 
+        }
+        if (max >= 10)
+        {
+            break;
+        }
     }
 </div>
 
@@ -28,6 +34,7 @@
         <p>@Model.description</p>
         <div class="Authors">
             <h4>Author(s):</h4>
+
             @foreach (Author author in Model.authors)
             {<div class="center">
                     @{ int authorImgId = author.photos.First();
@@ -52,7 +59,7 @@
                 }
             }
         </p>
-        <h6>Released:</h6>
+        <h6>Published:</h6>
         <p>@Model.created.value.ToShortDateString()</p>
 
         <a asp-action="AddBookToLibrary" asp-controller="Home" asp-route-bookId="@Model.key">
@@ -60,14 +67,18 @@
                 Add Book To My Library
             </button>
         </a>
+        <p style="color:red">@TempData["ReviewBookError"]</p>
+        <a asp-action="ReviewBook" asp-controller="Home" asp-route-bookId="@Model.key">
+            <button>
+                Add a Book Review
+            </button>
+        </a>
+
     </div>
 </div>
 
 <style>
-        @*body{
-            background-image:url(@backdropSrc);
-        }*@
-
+       
         .text {
             background-color: rgba(255, 255, 255,.8);
 
@@ -103,6 +114,12 @@
             align-content:center;
             justify-content:center;
         }
+    .top {
+        flex: 1;
+        align-content: center;
+        justify-content: center;
+        width: 100%;
+    }
             button:hover {
                 color: rgb(109,178,164);
                 background-color: rgba(242,107,58, .2);

@@ -1,0 +1,44 @@
+﻿@using Microsoft.AspNetCore.Identity
+@model BookInfo
+@inject UserManager<IdentityUser> UserManager
+
+
+@{int coverId = Model.covers.Where(x => x > 0).First();
+    string imgSrc = $"http://covers.openlibrary.org/b/id/{coverId}.jpg";
+}
+<h2>Review @Model.title:</h2>
+<div class="container">
+    <div class="sideBySide">
+        <img src="@imgSrc" alt="Alternate Text" width="200" />
+    </div>
+    <Div class="sideBySide">
+        <form method="post">
+            <input type="radio" name="Rating" value="5" required>
+            <label for="5">5 Stars</label><br>
+            <input type="radio" name="Rating" value="4" required>
+            <label for="4">4 Stars</label><br>
+            <input type="radio" name="Rating" value="3" required>
+            <label for="3">3 Stars</label><br>
+            <input type="radio" name="Rating" value="2" required>
+            <label for="2">2 Stars</label><br>
+            <input type="radio" name="Rating" value="1" required>
+            <label for="1">1 Star</label><br>
+            <label>Review:</label><br>
+            <input type="text" name="Review" required maxlength="250" />
+            <input type="hidden" name="UserId" value="">
+            <input type="hidden" name="TitleIdApi" value="@Model.key">
+            <input type="submit" value="Submit Review" />
+        </form>
+    </Div>
+</div>
+<style>
+    .container {
+        display: flex;
+    }
+
+    .sideBySide {
+        flex: 1;
+        border-radius: 25px;
+        width: fit-content();
+    }
+</style>

@@ -197,7 +197,51 @@ namespace CommunityLibrary.Controllers
             }
 
         }
-        
+        [Authorize]
+        public IActionResult ReviewBook(string bookId)
+        {
+            string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            User currentUser = _libraryDB.Users.First(x => x.UserId == user);
+            List<BookReview> myBookReviews = _libraryDB.BookReviews.Where(x => x.UserId == currentUser.Id).ToList();
+            if (myBookReviews.Where(x => x.TitleIdApi == bookId).Count() > 0)
+            {
+                //User Already Reviewed this book
+                TempData["ReviewBookError"] = "You have already reviewed this book. Go to 'My Book Reviews' if you would like to edit your review";
+                return RedirectToAction("ViewApiInfoForSingleBook", bookId);
+            }
+            else
+            {
+                BookInfo apiBook = _libraryDAL.GetBookInfo(bookId);
+
+                return View(apiBook);
+            }
+        }
+        [Authorize]
+        [HttpPost]
+        public IActionResult ReviewBook(BookReview bookReview)
+        {
+            string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            User currentUser = _libraryDB.Users.First(x => x.UserId == user);
+            bookReview.UserId = currentUser.Id;
+            if (ModelState.IsValid)
+            {
+                _libraryDB.BookReviews.Add(bookReview);
+                _libraryDB.SaveChanges();
+                return RedirectToAction("MyBookReviews");
+            }
+
+            //We need validation in case that doesn't work
+            return View();
+        }
+        [Authorize]
+        public IActionResult MyBookReviews()
+        {
+            string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            User currentUser = _libraryDB.Users.First(x => x.UserId == user);
+            List<BookReview> myBookReviews = _libraryDB.BookReviews.Where(x => x.UserId == currentUser.Id).ToList();
+
+            return View(myBookReviews);
+        }
         public IActionResult SearchByTitle()
         {
             string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
