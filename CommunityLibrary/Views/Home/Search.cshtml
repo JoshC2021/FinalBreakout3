@@ -1,1 +1,11 @@
-﻿<p>hello from search page</p>
+﻿<form method="post" asp-action="SearchResultsTitles" asp-controller="Home">
+    <div class="form-group">
+        <label>Search</label>
+        <input type="text" name="query" class="form-control" placeholder="Book title" required/>
+    </div>
+    <div class="form-group row">
+        <div class="col-sm-10">
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+    </div>
+</form>
