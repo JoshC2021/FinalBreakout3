@@ -1,0 +1,56 @@
+﻿@model List<Doc>
+
+<div class="text-center py-4">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12 text-center">
+                <h1>Results for Search Query<br></h1>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="" style="">
+    <div class="container">
+        <div class="row">
+
+            @foreach (var item in Model)
+            {
+            <div class="col-md-3 pb-4">
+                <div class="card">
+
+                    @if (item.cover_i == 0)
+                    {
+                        <img class="card-img-top" src="https://via.placeholder.com/500x750?text=No+Cover+Found" alt="No book cover image available for @item.title">
+                    }
+                    else
+                    {
+                        var imagePath = $"http://covers.openlibrary.org/b/id/{item.cover_i}-M.jpg";
+                        <img class="card-img-top" src="@imagePath" alt="Book cover for @item.title" />
+                    }
+
+                    <div class="card-body">
+                        <h5 class="card-title">@item.title</h5>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        @if (item.author_name != null)
+                        {
+                            <li class="list-group-item">@item.author_name[0]</li>
+                        }
+                        <li class="list-group-item">Edition Number</li>
+                        <li class="list-group-item"><strong>Available in your Community!</strong></li>
+                    </ul>
+                    <div class="card-body">
+                        <a href="#" class="card-link">Request this Book</a>
+                        <a href="#" class="card-link">Purchase</a>
+                    </div>
+                </div>
+            </div>
+            }
+
+        </div>
+    </div>
+</div>
+
+
+
+

@@ -1,6 +1,7 @@
 ﻿using CommunityLibrary.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -178,6 +179,7 @@ namespace CommunityLibrary.Controllers
             apiBook.authors = authors;
             return View(apiBook);
         }
+
         [Authorize]
         public IActionResult AddBookToLibrary(string bookId)
         {
@@ -203,6 +205,7 @@ namespace CommunityLibrary.Controllers
             }
 
         }
+
         [Authorize]
         public IActionResult ReviewBook(string bookId)
         {
@@ -222,6 +225,7 @@ namespace CommunityLibrary.Controllers
                 return View(apiBook);
             }
         }
+
         [Authorize]
         [HttpPost]
         public IActionResult ReviewBook(BookReview bookReview)
@@ -239,6 +243,7 @@ namespace CommunityLibrary.Controllers
             //We need validation in case that doesn't work
             return View();
         }
+
         [Authorize]
         public IActionResult MyBookReviews()
         {
@@ -248,16 +253,22 @@ namespace CommunityLibrary.Controllers
 
             return View(myBookReviews);
         }
-        public IActionResult SearchByTitle()
+
+        public IActionResult Search()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult SearchResultsTitles(string query)
         {
             string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             User currentUser = _libraryDB.Users.First(x => x.UserId == user);
 
             List<Doc> results = new List<Doc>();
-            results = _libraryDAL.GetSearchTitles("Lord of the Rings");
+            results = _libraryDAL.GetSearchTitles(query);
 
             return View(results);
-
         }
         
         public IActionResult Privacy()
