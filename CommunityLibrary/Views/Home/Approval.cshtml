@@ -1,4 +1,8 @@
-﻿@model Approval
+﻿@model LoanContainer
+@{
+    int userId = int.Parse(TempData["CurrentUser"].ToString());
+}
+
 
 <h2>Book Title: @Model.BookTitle</h2>
 <h2>Requester: </h2>
@@ -8,10 +12,30 @@
 <form asp-action="Approval" asp-controller="Home">
     <label>Loan Id: </label>
     <input type="text" name="Id" value="@Model.LoanInfo.Id" readonly />
-    <label>True:</label><input type="radio" name="LoanStatus" value="true" required />
-    <label>False:</label><input type="radio" name="LoanStatus" value="false" required />
     <label>Comments: </label>
-    <input type="text" name="OwnerNote"/>
-    <input type="submit" value="Approve" />
+    @if (Model.LoanInfo.IsOwner(userId))
+    {
+        <input type="text" name="OwnerNote" value="@Model.LoanInfo.OwnerNote" />
+        <input type="text" name="LoanerNote" value="@Model.LoanInfo.LoanerNote" readonly />
+    }
+    else
+    {
+        <input type="text" name="OwnerNote" value="@Model.LoanInfo.OwnerNote" readonly />
+        <input type="text" name="LoanerNote" value="@Model.LoanInfo.LoanerNote" />
+    }
     <br />
+    @if (Model.LoanInfo.IsDueDateSet() && Model.LoanInfo.IsOwner(userId))
+    {
+        <label>Approve Rental: </label>
+        <label>True:</label><input type="radio" name="LoanStatus" value="true" required />
+        <label>False:</label><input type="radio" name="LoanStatus" value="false" required />
+    }
+    else if(Model.LoanInfo.IsOwner(userId))
+    {
+        <label>End Loan: </label>
+        <label>Continue:</label><input type="radio" name="LoanStatus" value="true" required />
+        <label>End:</label><input type="radio" name="LoanStatus" value="false" required />
+    }
+    <br />
+    <input type="submit" value="Save Changes" />
 </form>
