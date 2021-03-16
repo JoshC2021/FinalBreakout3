@@ -1,6 +1,7 @@
 ﻿@model User
 <h2>Rating: @Model.CumulatvieRating</h2>
-<h2>Profile Img: @Model.ProfileImage</h2>
+<h2>Profile Img: </h2>
+<img src="@Model.ProfileImage" alt="No Img Found" height="100px" width="auto" />
 <h2>Location: @Model.UserLocation</h2>
 <a asp-action="Transactions" asp-controller="Home" asp-route-Id="@Model.Id">
     <button>
