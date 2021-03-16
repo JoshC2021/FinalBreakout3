@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace CommunityLibrary.Models
 {
-    public class Approval
+    public class LoanContainer
     {
         public string BookTitle { get; set; }
 

@@ -24,6 +24,7 @@ namespace CommunityLibrary.Controllers
         {
             _libraryDB = libraryContext;
         }
+        [AllowAnonymous]
         public IActionResult Index()
         {
             BookInfo bookInfo = new BookInfo();
@@ -33,7 +34,6 @@ namespace CommunityLibrary.Controllers
             return View(bookInfo);
         }
 
-        [Authorize]
         public IActionResult Profile()
         {
             string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
@@ -77,18 +77,20 @@ namespace CommunityLibrary.Controllers
         {
             User currentUser = _libraryDB.Users.First(x => x.Id == Id);
             TempData["CurrentUser"] = currentUser.Id;
+            // grab all loans user is involved in, both sides
             List<Loan> userLoans = _libraryDB.Loans.Where(x => x.BookLoaner == currentUser.Id || x.BookOwner == currentUser.Id).ToList();
             return View(userLoans);
         }
 
         public IActionResult Approval(int loanId)
         {
+            // Populate container with necessary info then send to view
             string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             User currentUser = _libraryDB.Users.First(x => x.UserId == user);
             TempData["CurrentUser"] = currentUser.Id;
 
             Loan currentLoan = _libraryDB.Loans.First(x=> x.Id == loanId);
-            Approval loanDetails = new Approval();
+            LoanContainer loanDetails = new LoanContainer();
             loanDetails.LoanInfo = currentLoan;
 
             User renterInfo = _libraryDB.Users.First(x => x.Id == currentLoan.BookLoaner);
@@ -105,23 +107,72 @@ namespace CommunityLibrary.Controllers
         {
 
             Loan oldDetails = _libraryDB.Loans.First(x => x.Id == approvalUpdate.Id);
+            Book loanedBook = _libraryDB.Books.First(x => x.Id == oldDetails.BookId);
+
+            // update status and comments
             oldDetails.LoanStatus = approvalUpdate.LoanStatus;
-            if(oldDetails.LoanStatus)
+            oldDetails.LoanerNote = approvalUpdate.LoanerNote;
+            oldDetails.OwnerNote = approvalUpdate.OwnerNote;
+
+            // newly approved rentals tasks
+            if(oldDetails.LoanStatus && !oldDetails.IsDueDateSet())
             {
                 // set DueDate
-                Book loanedBook = _libraryDB.Books.First(x => x.Id == oldDetails.BookId);
                 DateTime due = DateTime.Today;
                 due = due.AddDays((double)loanedBook.LoanPeriod);
                 oldDetails.DueDate = due;
 
-                _libraryDB.Loans.Update(oldDetails);
+                // update book status
+                loanedBook.AvailibilityStatus = false;
+                loanedBook.CurrentHolder = oldDetails.BookLoaner;
             }
-            else
+
+            // Remove denied rentals
+            if(!oldDetails.LoanStatus && !oldDetails.IsDueDateSet())
             {
-                _libraryDB.Loans.Update(oldDetails);
+                _libraryDB.Loans.Remove(oldDetails);
+                return RedirectToAction("Profile");
             }
+
+            // Ended transactions, revert book to owner
+            if(!oldDetails.LoanStatus)
+            {
+                loanedBook.AvailibilityStatus = true;
+                loanedBook.CurrentHolder = oldDetails.BookOwner;
+            }
+            _libraryDB.Loans.Update(oldDetails);
+
+
             return RedirectToAction("Profile");
         }
+
+
+        public IActionResult RequestLoan(int  bookId)
+        {
+            string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            User currentUser = _libraryDB.Users.First(x => x.UserId == user);
+
+            Loan newLoan = new Loan();
+
+            // grab user details
+            newLoan.BookLoaner = currentUser.Id;
+            newLoan.RecipientRating = currentUser.CumulatvieRating;
+
+
+            // grab book details
+            Book renting = _libraryDB.Books.First(x=> x.Id == bookId);
+            newLoan.BookId = bookId;
+
+            // grab owner details
+            User bookOwner = _libraryDB.Users.First(x => x.Id == renting.BookOwner);
+            newLoan.OwnerRating = bookOwner.CumulatvieRating;
+            newLoan.BookOwner = bookOwner.Id;
+                
+
+            // go to transaction page to see added request
+            return RedirectToAction("Transactions",currentUser.Id);
+        }
+
 
         public IActionResult UserMap()
         {
