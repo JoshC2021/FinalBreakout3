@@ -197,8 +197,13 @@ namespace CommunityLibrary.Controllers
             }
 
         }
+
+        public IActionResult Search()
+        {
+            return View();
+        }
         
-        public IActionResult SearchByTitle()
+        public IActionResult SearchResultsTitles()
         {
             string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             User currentUser = _libraryDB.Users.First(x => x.UserId == user);
