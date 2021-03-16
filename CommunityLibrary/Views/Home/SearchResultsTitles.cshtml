@@ -40,8 +40,16 @@
                         <li class="list-group-item"><strong>Available in your Community!</strong></li>
                     </ul>
                     <div class="card-body">
-                        <a href="#" class="card-link">Request this Book</a>
-                        <a href="#" class="card-link">Purchase</a>
+                        <a class="card-link" asp-action="ViewApiInfoForSingleBook" asp-controller="Home" asp-route-bookId="@item.key">
+                            <button>
+                                See more details
+                            </button>
+                        </a>
+                        <a class="card-link" asp-action="AddBookToLibrary" asp-controller="Home" asp-route-bookId="@item.key">
+                            <button>
+                                Add To My Library
+                            </button>
+                        </a>
                     </div>
                 </div>
             </div>

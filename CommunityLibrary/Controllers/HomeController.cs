@@ -214,10 +214,8 @@ namespace CommunityLibrary.Controllers
 
             return View(withinDistance);
         }
-        public IActionResult ViewApiInfoForSingleBook(/*string bookId*/)
+        public IActionResult ViewApiInfoForSingleBook(string bookId)
         {
-            //Switch this out to the parameter
-            string bookId = "/works/OL453936W";
             BookInfo apiBook = _libraryDAL.GetBookInfo(bookId);
             List<Author> authors = new List<Author>();
             foreach (Author author in apiBook.authors)
