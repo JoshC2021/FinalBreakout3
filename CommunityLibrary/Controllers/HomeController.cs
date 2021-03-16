@@ -47,20 +47,26 @@ namespace CommunityLibrary.Controllers
         }
 
         [HttpPost]
-        public IActionResult UpdateProfile(User current)
+        public IActionResult UpdateProfile(User updated)
         {
+
             if (ModelState.IsValid)
             {
-                current.UserId = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-                List<Result> latLng = _googleDAL.GetResults(current.UserLocation);
+                string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                User currentUser = _libraryDB.Users.First(x => x.UserId == user);
+                List<Result> latLng = _googleDAL.GetResults(updated.UserLocation);
                 // check to see if user address exists
                 if(latLng.Count != 0)
                 {
                     // set top match to user's location
-                    current.Latitude = latLng[0].geometry.location.lat.ToString();
-                    current.Longitude = latLng[0].geometry.location.lng.ToString();
+                    currentUser.Latitude = latLng[0].geometry.location.lat.ToString();
+                    currentUser.Longitude = latLng[0].geometry.location.lng.ToString();
+                    currentUser.UserLocation = updated.UserLocation;
                 }
-                _libraryDB.Users.Update(current);
+
+                currentUser.ProfileImage = updated.ProfileImage;
+
+                _libraryDB.Users.Update(currentUser);
                 _libraryDB.SaveChanges();
             }
             return RedirectToAction("Profile");
