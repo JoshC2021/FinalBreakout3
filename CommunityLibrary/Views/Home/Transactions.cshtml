@@ -4,7 +4,7 @@
 }
 
 <h2>Current Rentals</h2>
-@foreach (Loan l in Model.Where(x => x.BookLoaner == userId && x.LoanStatus))
+@foreach (Loan l in Model.Where(x => x.BookOwner == userId && x.LoanStatus))
 {
     <p>Rental #@l.Id</p>
     if (l.IsDateEmpty())
@@ -20,7 +20,7 @@
 }
 
 <h2>Currently Renting</h2>
-@foreach (Loan l in Model.Where(x => x.BookOwner == userId && x.LoanStatus))
+@foreach (Loan l in Model.Where(x => x.BookLoaner == userId && x.LoanStatus))
 {
     <p>Rental #@l.Id</p>
     if (l.IsDateEmpty())
