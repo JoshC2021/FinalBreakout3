@@ -45,6 +45,11 @@ namespace CommunityLibrary.Controllers
                     newCurrentUser.UserId = user;
                     newCurrentUser.CumulatvieRating = 5;
                     newCurrentUser.UserName = _libraryDB.AspNetUsers.Find(user).UserName;
+
+                    //Maps doesn't work if ALL users in the database don't have a location, automatically setting all users to Detroit- they can change in user profile
+                    newCurrentUser.UserLocation = "Detroit";
+                    newCurrentUser.Latitude = "42.33143";
+                    newCurrentUser.Longitude = "-83.04575";
                     _libraryDB.Users.Add(newCurrentUser);
                     _libraryDB.SaveChanges();
                     
