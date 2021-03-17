@@ -18,9 +18,6 @@ namespace CommunityLibrary.Models
         public int? BookLoaner { get; set; }
         public int? BookOwner { get; set; }
 
-        public virtual Book Book { get; set; }
-        public virtual User BookLoanerNavigation { get; set; }
-        public virtual User BookOwnerNavigation { get; set; }
         public bool IsOwner(int id)
         {
             return id == BookOwner;
@@ -31,5 +28,9 @@ namespace CommunityLibrary.Models
             return this.DueDate == DateTime.MinValue;
         }
 
+
+        public virtual Book Book { get; set; }
+        public virtual User BookLoanerNavigation { get; set; }
+        public virtual User BookOwnerNavigation { get; set; }
     }
 }

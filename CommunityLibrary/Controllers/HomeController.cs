@@ -93,7 +93,7 @@ namespace CommunityLibrary.Controllers
                     currentUser.Longitude = latLng[0].geometry.location.lng.ToString();
                     currentUser.UserLocation = updated.UserLocation;
                 }
-
+                currentUser.UserName = updated.UserName;
                 currentUser.ProfileImage = updated.ProfileImage;
 
                 _libraryDB.Users.Update(currentUser);
@@ -102,9 +102,10 @@ namespace CommunityLibrary.Controllers
             return RedirectToAction("Profile");
         }
 
-        public IActionResult Transactions(int Id)
+        public IActionResult Transactions()
         {
-            User currentUser = _libraryDB.Users.First(x => x.Id == Id);
+            string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            User currentUser = _libraryDB.Users.First(x => x.UserId == user);
             TempData["CurrentUser"] = currentUser.Id;
             // grab all loans user is involved in, both sides
             List<Loan> userLoans = _libraryDB.Loans.Where(x => x.BookLoaner == currentUser.Id || x.BookOwner == currentUser.Id).ToList();
@@ -160,6 +161,7 @@ namespace CommunityLibrary.Controllers
             if (!oldDetails.LoanStatus && !oldDetails.IsDueDateSet())
             {
                 _libraryDB.Loans.Remove(oldDetails);
+                _libraryDB.SaveChanges();
                 return RedirectToAction("Profile");
             }
 
@@ -170,13 +172,11 @@ namespace CommunityLibrary.Controllers
                 loanedBook.CurrentHolder = oldDetails.BookOwner;
             }
             _libraryDB.Loans.Update(oldDetails);
-
+            _libraryDB.SaveChanges();
 
             return RedirectToAction("Profile");
         }
-
-
-        public IActionResult RequestLoan(int bookId)
+        public IActionResult RequestLoan(int Id)
         {
             string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             User currentUser = _libraryDB.Users.First(x => x.UserId == user);
@@ -189,17 +189,23 @@ namespace CommunityLibrary.Controllers
 
 
             // grab book details
-            Book renting = _libraryDB.Books.First(x => x.Id == bookId);
-            newLoan.BookId = bookId;
+            Book renting = _libraryDB.Books.First(x=> x.Id == Id);
+            newLoan.BookId = Id;
 
             // grab owner details
             User bookOwner = _libraryDB.Users.First(x => x.Id == renting.BookOwner);
             newLoan.OwnerRating = bookOwner.CumulatvieRating;
             newLoan.BookOwner = bookOwner.Id;
-
+            
+            // min value throws exception, no vlaue also
+            newLoan.DueDate = DateTime.MinValue;
+            
+            // update database
+            _libraryDB.Loans.Add(newLoan);
+            _libraryDB.SaveChanges();
 
             // go to transaction page to see added request
-            return RedirectToAction("Transactions", currentUser.Id);
+            return RedirectToAction("Transactions");
         }
 
 
@@ -263,6 +269,8 @@ namespace CommunityLibrary.Controllers
         {
             string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             User currentUser = _libraryDB.Users.First(x => x.UserId == user);
+
+            //grab logged in user's book ids
             List<Book> dbPersonalLibrary = _libraryDB.Books.Where(x => x.BookOwner == currentUser.Id).ToList();
 
             List<LibraryBook> libraryBooks = new List<LibraryBook>();
@@ -282,14 +290,12 @@ namespace CommunityLibrary.Controllers
                 LibraryBook libraryBook = new LibraryBook();
 
                 User bookHolder = _libraryDB.Users.First(x => x.Id == book.CurrentHolder);
-                AspNetUser identityBookHolder = _libraryDB.AspNetUsers.First(x => x.Id == bookHolder.UserId);
-
                 User bookOwner = _libraryDB.Users.First(x => x.Id == book.BookOwner);
-                AspNetUser identityBookOwner = _libraryDB.AspNetUsers.First(x => x.Id == bookOwner.UserId);
+              
                 libraryBook.ApiBook = apiBook;
                 libraryBook.DbBook = book;
-                libraryBook.BookOwner = identityBookOwner;
-                libraryBook.BookHolder = identityBookHolder;
+                libraryBook.BookOwner = bookHolder.UserName;
+                libraryBook.BookHolder = bookOwner.UserName;
                 libraryBooks.Add(libraryBook);
             }
 
@@ -369,7 +375,7 @@ namespace CommunityLibrary.Controllers
         }
 
 
-        public IActionResult ViewLocalLibraries()
+        public IActionResult LocalLibraries()
         {
             string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             User currentUser = _libraryDB.Users.First(x => x.UserId == user);
@@ -377,7 +383,46 @@ namespace CommunityLibrary.Controllers
             // get local users
             List<User> notUser = _libraryDB.Users.Where(x => x.UserId != user).ToList();
             List<User> withinDistance = GetLocalUsers(currentUser, notUser);
-            return View();
+
+            // list of local book ids
+            List<Book> localLibraries = new List<Book>();
+            
+            foreach (User local in withinDistance)
+            {
+                localLibraries.AddRange(_libraryDB.Books.Where(x => x.BookOwner == local.Id));
+            }
+
+            // list of book containers
+            List<LibraryBook> libraryBooks = new List<LibraryBook>();
+
+            foreach (Book book in localLibraries)
+            {
+                BookInfo bookDetails = _libraryDAL.GetBookInfo(book.TitleIdApi);
+
+                List<Author> authors = new List<Author>();
+                foreach (Author author in bookDetails.authors)
+                {
+                    string authorId = author.author.key;
+                    Author apiAuthor = _libraryDAL.GetAuthorInfo(authorId);
+
+                    authors.Add(apiAuthor);
+                }
+                bookDetails.authors = authors;
+
+                // container info for a book
+                LibraryBook libraryBook = new LibraryBook();
+
+                User bookHolder = _libraryDB.Users.First(x => x.Id == book.CurrentHolder);
+                User bookOwner = _libraryDB.Users.First(x => x.Id == book.BookOwner);
+
+                libraryBook.ApiBook = bookDetails;
+                libraryBook.DbBook = book;
+                libraryBook.BookOwner = bookHolder.UserName;
+                libraryBook.BookHolder = bookOwner.UserName;
+                libraryBooks.Add(libraryBook);
+            }
+
+            return View(libraryBooks);
         }
 
         public IActionResult Privacy()
@@ -401,16 +446,16 @@ namespace CommunityLibrary.Controllers
 
             const double radConv = Math.PI / 180;
             const int R = 6371; // radius of earth in km
-            const int d = 20; // only show libraries within 20km
+            const int d = 15; // only show libraries within 20km
             double userLat = Double.Parse(currentUser.Latitude) * radConv;
             double otherLat;
             double deltaLng;
             foreach (User other in notUser)
             {
                 otherLat = Double.Parse(other.Latitude) * radConv;
-                deltaLng = Double.Parse(currentUser.Longitude) - Double.Parse(other.Longitude);
+                deltaLng = (Double.Parse(currentUser.Longitude) - Double.Parse(other.Longitude))*radConv;
 
-                if ((Math.Acos(Math.Sin(userLat) * Math.Sin(otherLat) + Math.Cos(userLat) * Math.Cos(otherLat) * Math.Cos(deltaLng)) * R) < d)
+                if ((Math.Acos(Math.Sin(userLat) * Math.Sin(otherLat) + Math.Cos(userLat) * Math.Cos(otherLat) * Math.Cos(deltaLng))) * R < d)
                 {
                     within.Add(other);
                 }
@@ -421,7 +466,9 @@ namespace CommunityLibrary.Controllers
                 }
                 max++;
             }
+
             return within;
         }
+
     }
 }
