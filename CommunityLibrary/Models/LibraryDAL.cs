@@ -49,10 +49,29 @@ namespace CommunityLibrary.Models
         public BookInfo GetBookInfo(string key)
         {
             string data = GetKeyData(key);
+            BookInfo bookInfo;
+            SpecialBook bookSpecial;
+            CrazyBook bookAuthor;
 
-            BookInfo bookInfo = JsonConvert.DeserializeObject<BookInfo>(data);
-
-            return bookInfo;
+            try
+            {
+               bookInfo = JsonConvert.DeserializeObject<BookInfo>(data);
+               return bookInfo;
+            }
+            catch
+            {
+                try
+                {
+                    bookSpecial = JsonConvert.DeserializeObject<SpecialBook>(data);
+                    return bookSpecial;
+                }
+                catch
+                {
+                    bookAuthor = JsonConvert.DeserializeObject<CrazyBook>(data);
+                    return bookAuthor;
+                }
+            }
+            
 
         }
         public Author GetAuthorInfo(string key)
