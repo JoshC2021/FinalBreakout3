@@ -210,7 +210,11 @@ namespace CommunityLibrary.Models
 
                 entity.Property(e => e.UserId).HasMaxLength(450);
 
-                entity.Property(e => e.UserLocation).HasMaxLength(40);
+                entity.Property(e => e.UserLocation).HasMaxLength(255);
+
+                entity.Property(e => e.UserName)
+                    .HasMaxLength(30)
+                    .HasDefaultValueSql("('Friend')");
 
                 entity.HasOne(d => d.UserNavigation)
                     .WithMany(p => p.Users)
