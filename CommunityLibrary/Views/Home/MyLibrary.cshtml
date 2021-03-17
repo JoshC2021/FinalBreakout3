@@ -1,7 +1,7 @@
 ﻿@model List<LibraryBook>
 
 
-<h1>My Collection</h1>
+<h1>My Favorites</h1>
 <div class="stacked">
     @foreach (LibraryBook book in Model)
     {
@@ -29,7 +29,7 @@
                     <h6>Book Availability:</h6>
                     @if (book.DbBook.AvailibilityStatus == false)
                     {
-                        <p>@book.BookHolder currently has this book checked out.</p>
+                        <p>@book.BookHolder.UserName currently has this book checked out.</p>
                     }
                 else
                 {
