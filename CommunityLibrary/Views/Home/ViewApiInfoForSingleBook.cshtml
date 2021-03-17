@@ -1,32 +1,56 @@
 ﻿@model BookInfo
 
-@{int coverId = Model.covers.Where(x => x > 0).First();
-    string imgSrc = $"http://covers.openlibrary.org/b/id/{coverId}.jpg";
-    int allSubject = Model.subjects.Length;
+@{
+    string imgSrc = null;
+    if (Model.covers is not null)
+    {
+        int coverId = Model.covers.Where(x => x > 0).First();
+        imgSrc = $"http://covers.openlibrary.org/b/id/{coverId}.jpg";
+    }
+    int allSubject = 0;
+    if (Model.subjects is not null)
+    {
+        allSubject = Model.subjects.Length;
+    }
+
 
 }
 <div class="top">
     @{ int max = 0;}
-    @foreach (var item in Model.covers)
-    {
-        if (item > 0)
-        {
-            string coverIds = $"http://covers.openlibrary.org/b/id/{item}.jpg";
-            <img src="@coverIds" alt="Alternate Text" width="100" />
-            max++;
 
-        }
-        if (max >= 10)
+    @if (Model.covers is not null)
+    {
+
+
+        @foreach (var item in Model.covers)
         {
-            break;
+            if (item > 0)
+            {
+                string coverIds = $"http://covers.openlibrary.org/b/id/{item}.jpg";
+                <img src="@coverIds" alt="Alternate Text" width="100" />
+                max++;
+
+            }
+            if (max >= 10)
+            {
+                break;
+            }
         }
     }
+   
 </div>
 
 
 <h2 class="text">@Model.title</h2>
 <div class="container">
+    @if (imgSrc == null)
+    {
+        <img class="sideBySide" width="500" src="https://via.placeholder.com/500x750?text=No+Cover+Found" alt="No book cover image available for @Model.title">
+    }
+    else
+    {
     <img src="@imgSrc" alt="Alternate Text" class="sideBySide" width="500" />
+    }
     <div class="text sideBySide">
 
 
@@ -34,21 +58,29 @@
         <p>@Model.description</p>
         <div class="Authors">
             <h4>Author(s):</h4>
+            @if (Model.authors is not null)
+            {
 
-            @foreach (Author author in Model.authors)
-            {<div class="center">
-                    @{
-                        if (author.photos is not null)
-                        {
-                            int authorImgId = author.photos.First();
-                            string authorImageSrc = $"http://covers.openlibrary.org/a/id/{authorImgId}-M.jpg";
-                            <img src="@authorImageSrc" alt="Alternate Text" width="100" />
+
+                @foreach (Author author in Model.authors)
+                {<div class="center">
+                        @{
+                            if (author.photos is not null)
+                            {
+                                int authorImgId = author.photos.First();
+                                string authorImageSrc = $"http://covers.openlibrary.org/a/id/{authorImgId}-M.jpg";
+                                <img src="@authorImageSrc" alt="Alternate Text" width="100" />
+                            }
+
                         }
 
-                    }
-
-                    <p>@author.name</p>
-                </div>
+                        <p>@author.name</p>
+                    </div>
+                }
+            }
+            else
+            {
+                <p>Unknown Author</p>
             }
         </div>
         <h6>Subject(s):</h6>
@@ -56,13 +88,18 @@
             @{
                 int biterator = 0;
             }
+            @if (Model.subjects is not null)
+            {
+
+            
             @foreach (string subject in Model.subjects)
             {
                 @subject
-                if (++biterator != allSubject)
+                if (++biterator != allSubject && allSubject != 0)
                 {
                     @:,
                 }
+            }
             }
         </p>
         <h6>Published:</h6>
