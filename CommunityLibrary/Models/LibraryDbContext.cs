@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -147,12 +147,12 @@ namespace CommunityLibrary.Models
                 entity.HasOne(d => d.BookOwnerNavigation)
                     .WithMany(p => p.BookBookOwnerNavigations)
                     .HasForeignKey(d => d.BookOwner)
-                    .HasConstraintName("FK__Books__BookOwner__403A8C7D");
+                    .HasConstraintName("FK__Books__BookOwner__60A75C0F");
 
                 entity.HasOne(d => d.CurrentHolderNavigation)
                     .WithMany(p => p.BookCurrentHolderNavigations)
                     .HasForeignKey(d => d.CurrentHolder)
-                    .HasConstraintName("FK__Books__CurrentHo__3F466844");
+                    .HasConstraintName("FK__Books__CurrentHo__5FB337D6");
             });
 
             modelBuilder.Entity<BookReview>(entity =>
@@ -167,7 +167,7 @@ namespace CommunityLibrary.Models
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.BookReviews)
                     .HasForeignKey(d => d.UserId)
-                    .HasConstraintName("FK__BookRevie__UserI__47DBAE45");
+                    .HasConstraintName("FK__BookRevie__UserI__68487DD7");
             });
 
             modelBuilder.Entity<Loan>(entity =>
@@ -181,17 +181,17 @@ namespace CommunityLibrary.Models
                 entity.HasOne(d => d.Book)
                     .WithMany(p => p.Loans)
                     .HasForeignKey(d => d.BookId)
-                    .HasConstraintName("FK__Loans__BookId__4316F928");
+                    .HasConstraintName("FK__Loans__BookId__160F4887");
 
                 entity.HasOne(d => d.BookLoanerNavigation)
                     .WithMany(p => p.LoanBookLoanerNavigations)
                     .HasForeignKey(d => d.BookLoaner)
-                    .HasConstraintName("FK__Loans__BookLoane__440B1D61");
+                    .HasConstraintName("FK__Loans__BookLoane__17036CC0");
 
                 entity.HasOne(d => d.BookOwnerNavigation)
                     .WithMany(p => p.LoanBookOwnerNavigations)
                     .HasForeignKey(d => d.BookOwner)
-                    .HasConstraintName("FK__Loans__BookOwner__44FF419A");
+                    .HasConstraintName("FK__Loans__BookOwner__17F790F9");
             });
 
             modelBuilder.Entity<User>(entity =>
@@ -219,7 +219,7 @@ namespace CommunityLibrary.Models
                 entity.HasOne(d => d.UserNavigation)
                     .WithMany(p => p.Users)
                     .HasForeignKey(d => d.UserId)
-                    .HasConstraintName("FK__Users__UserId__3C69FB99");
+                    .HasConstraintName("FK__Users__UserId__5CD6CB2B");
             });
 
             OnModelCreatingPartial(modelBuilder);
