@@ -260,7 +260,7 @@ namespace CommunityLibrary.Controllers
             if (personalLibrary.Where(x => x.TitleIdApi == bookId).Count() > 0)
             {
                 //Book already exists in their personal library--should libraries be allowed to have more than 1 copy of the same book?
-                return View();
+                return RedirectToAction("MyLibrary");
             }
             else
             {
@@ -289,14 +289,17 @@ namespace CommunityLibrary.Controllers
             {
                 BookInfo apiBook = _libraryDAL.GetBookInfo(book.TitleIdApi);
                 List<Author> authors = new List<Author>();
-                foreach (Author author in apiBook.authors)
+                if (apiBook.authors is not null)
                 {
-                    string authorId = author.author.key;
-                    Author apiAuthor = _libraryDAL.GetAuthorInfo(authorId);
+                    foreach (Author author in apiBook.authors)
+                    {
+                        string authorId = author.author.key;
+                        Author apiAuthor = _libraryDAL.GetAuthorInfo(authorId);
 
-                    authors.Add(apiAuthor);
+                        authors.Add(apiAuthor);
+                    }
+                    apiBook.authors = authors;
                 }
-                apiBook.authors = authors;
                 LibraryBook libraryBook = new LibraryBook();
 
                 User bookHolder = _libraryDB.Users.First(x => x.Id == book.CurrentHolder);
@@ -320,7 +323,14 @@ namespace CommunityLibrary.Controllers
             _libraryDB.SaveChanges();
             return RedirectToAction("MyLibrary");
         }
-
+        public IActionResult EditLoanPeriod(int bookId, int loanPeriod)
+        {
+            Book currentBook = _libraryDB.Books.Find(bookId);
+            currentBook.LoanPeriod = loanPeriod;
+            _libraryDB.Books.Update(currentBook);
+            _libraryDB.SaveChanges();
+            return RedirectToAction("MyLibrary");
+        }
 
         public IActionResult ReviewBook(string bookId)
         {
@@ -331,7 +341,7 @@ namespace CommunityLibrary.Controllers
             {
                 //User Already Reviewed this book
                 TempData["ReviewBookError"] = "You have already reviewed this book. Go to 'My Book Reviews' if you would like to edit your review";
-                return RedirectToAction("ViewApiInfoForSingleBook", bookId);
+                return RedirectToAction("ViewApiInfoForSingleBook", new { bookId = bookId });
             }
             else
             {

@@ -9,10 +9,22 @@
         <div class="box">
 
             <div>
-                @{int coverId = book.ApiBook.covers.Where(x => x > 0).First();
-                    string imgSrc = $"http://covers.openlibrary.org/b/id/{coverId}.jpg";}
 
-                <img src=" @imgSrc" alt="@book." width="100" />
+                @{int coverId = 0;
+                    @if (book.ApiBook.covers is not null)
+                    {
+                        coverId = book.ApiBook.covers.Where(x => x > 0).First();
+                    }
+
+                    string imgSrc = $"http://covers.openlibrary.org/b/id/{coverId}.jpg";}
+                @if (coverId != 0)
+                {
+                    <img src=" @imgSrc" alt="@book." width="100" />
+                }
+                else
+                {
+                    <img width="100" src="https://via.placeholder.com/500x750?text=No+Cover+Found" alt="No book cover image available for @book.ApiBook.title">
+                }
             </div>
             <div class="box2">
                 <div class="center">
@@ -20,12 +32,21 @@
 
 
                     <h6>Author(s)</h6>
+                   @if (book.ApiBook.authors is not null)
+                   {
+
+                  
                     <p>
                         @foreach (Author author in book.ApiBook.authors)
                         {
                             @author.name@:,
                         }
                     </p>
+                   }
+                else
+                {
+                <p>Author is unknown</p>
+                }
                     <h6>Book Availability:</h6>
                     @if (book.DbBook.AvailibilityStatus == false)
                     {
@@ -53,11 +74,12 @@
                             Remove from Your Library
                         </button>
                     </a>
-                    <a asp-action="EditLoanPeriod" asp-route-id="@book.DbBook.TitleIdApi">
-                        <button>
-                            Edit Loan Period
-                        </button>
-                    </a>
+                    <form asp-action="EditLoanPeriod" asp-route-bookId="@book.DbBook.Id">
+                        <label style="color:black">Enter the number of days you would allow this book to be checked out. (This will not adjust the due date for any books already checked out)</label>
+                        <input type="number" min="7" name="loanPeriod"/>
+                        <input type="submit" name="Edit Loan Period"/>
+                        
+                    </form>
 
                 </div>
             </div>
