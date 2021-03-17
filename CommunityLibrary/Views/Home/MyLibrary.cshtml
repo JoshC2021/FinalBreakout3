@@ -1,7 +1,7 @@
 ﻿@model List<LibraryBook>
 
 
-<h1>My Collection</h1>
+<h1>My Favorites</h1>
 <div class="stacked">
     @foreach (LibraryBook book in Model)
     {
@@ -29,7 +29,7 @@
                     <h6>Book Availability:</h6>
                     @if (book.DbBook.AvailibilityStatus == false)
                     {
-                        <p>@book.BookHolder currently has this book checked out.</p>
+                        <p>@book.BookHolder.UserName currently has this book checked out.</p>
                     }
                 else
                 {
@@ -42,13 +42,13 @@
 
                 </div>
                 <div class="right">
-                    <a asp-action="ViewApiInforForSingleBook" asp-route-bookId="@book.DbBook.TitleIdApi">
+                    <a asp-action="ViewApiInfoForSingleBook" asp-route-bookId="@book.ApiBook.key">
                         <button class="right">
                             View Book Description
                         </button>
                     </a>
                     <br />
-                    <a asp-action="RemoveFromLibrary" asp-route-id="@book.DbBook.TitleIdApi">
+                    <a asp-action="RemoveFromLibrary" asp-route-bookId="@book.DbBook.Id">
                         <button>
                             Remove from Your Library
                         </button>
