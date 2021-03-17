@@ -1,11 +1,16 @@
-﻿<form method="post" asp-action="SearchResultsTitles" asp-controller="Home">
-    <div class="form-group">
-        <label>Search</label>
-        <input type="text" name="query" class="form-control" placeholder="Book title" required/>
-    </div>
-    <div class="form-group row">
-        <div class="col-sm-10">
-            <button type="submit" class="btn btn-primary">Submit</button>
+﻿<div class="py-5 text-center" style="	background-image: linear-gradient(to bottom, rgba(189, 195, 199, .25), rgba(44, 62, 80, .25));	background-size: 100%;	background-position: top left;	background-repeat: repeat;	min-height: 700px;">
+    <div class="container">
+        <div class="row">
+            <div class="mx-auto col-md-6">
+                <h1>Search for a Book</h1>
+                <p class="mb-4">Looking for a particular title?</p>
+                <form class="form-inline d-flex justify-content-center" method="post" asp-action="SearchResultsTitles" asp-controller="Home">
+                    <div class="input-group" style="	width: 100%;">
+                        <input type="text" class="form-control" name="query" placeholder="Book title" required>
+                        <div class="input-group-append"> <button class="btn btn-primary" type="submit">Search</button> </div>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-</form>
+</div>
