@@ -9,10 +9,20 @@
         <div class="box">
 
             <div>
-                @{int coverId = book.ApiBook.covers.Where(x => x > 0).First();
-                    string imgSrc = $"http://covers.openlibrary.org/b/id/{coverId}.jpg";}
+                @{int coverId = 0;
+                    @if (book.ApiBook.covers is not null)
+                    {
+                        coverId = book.ApiBook.covers.Where(x => x > 0).First();
+                        string imgSrc = $"http://covers.openlibrary.org/b/id/{coverId}.jpg";
+                        <img src=" @imgSrc" alt="@book.ApiBook.title" width="100" />
+                    }
+                    else
+                    {
+                        <img width="100" src="https://via.placeholder.com/500x750?text=No+Cover+Found" alt="No book cover image available for @book.ApiBook.title">
+                    }
+                }
 
-                <img src=" @imgSrc" alt="@book." width="100" />
+
             </div>
             <div class="box2">
                 <div class="center">
@@ -20,12 +30,19 @@
 
 
                     <h6>Author(s)</h6>
-                    <p>
-                        @foreach (Author author in book.ApiBook.authors)
-                        {
-                            @author.name@:,
-                        }
-                    </p>
+                    @if (book.ApiBook.authors is not null)
+                    {
+                        <p>
+                            @foreach (Author author in book.ApiBook.authors)
+                            {
+                                @author.name@:,
+                            }
+                        </p>
+                    }
+                    else
+                    {
+                        <p>Author is unknown</p>
+                    }
                     <h6>Book Availability:</h6>
                     @if (book.DbBook.AvailibilityStatus == false)
                     {
@@ -38,7 +55,7 @@
 
                 </div>
                 <div class="right">
-                    <a asp-action="ViewApiInforForSingleBook" asp-route-bookId="@book.DbBook.TitleIdApi">
+                    <a asp-action="ViewApiInfoForSingleBook" asp-route-bookId="@book.DbBook.TitleIdApi">
                         <button class="right">
                             View Book Description
                         </button>
