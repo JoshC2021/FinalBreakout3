@@ -4,33 +4,33 @@
 }
 
 <h2>Current Rentals</h2>
-@foreach (Loan l in Model.Where(x => x.IsOwner(userId) && x.LoanStatus))
+@foreach (Loan l in Model.Where(x => x.BookLoaner == userId && x.LoanStatus))
 {
     <p>Rental #@l.Id</p>
-    if (l.IsDueDateSet())
+    if (l.IsDateEmpty())
     {
         @Html.ActionLink("Approve", "Approval", "Home", new { loanId = l.Id })
     }
     else
     {
 
-        @Html.ActionLink($"{l.DueDate.Date.ToString()}", "Approval", "Home", new { loanId = l.Id })
+        @Html.ActionLink($"{l.DueDate.Value.ToShortDateString()}", "Approval", "Home", new { loanId = l.Id })
     }
     <br />
 }
 
 <h2>Currently Renting</h2>
-@foreach (Loan l in Model.Where(x => x.BookLoaner == userId && x.LoanStatus))
+@foreach (Loan l in Model.Where(x => x.BookOwner == userId && x.LoanStatus))
 {
     <p>Rental #@l.Id</p>
-    if (l.IsDueDateSet())
+    if (l.IsDateEmpty())
     {
         @Html.ActionLink("Pending Details", "Approval", "Home", new { loanId = l.Id })
     }
     else
     {
 
-        @Html.ActionLink($"{l.DueDate.Date.ToString()}", "Approval", "Home", new { loanId = l.Id })
+        @Html.ActionLink($"{l.DueDate.Value.ToShortDateString()}", "Approval", "Home", new { loanId = l.Id })
     }
     <br />
 

@@ -181,17 +181,17 @@ namespace CommunityLibrary.Models
                 entity.HasOne(d => d.Book)
                     .WithMany(p => p.Loans)
                     .HasForeignKey(d => d.BookId)
-                    .HasConstraintName("FK__Loans__BookId__6383C8BA");
+                    .HasConstraintName("FK__Loans__BookId__160F4887");
 
                 entity.HasOne(d => d.BookLoanerNavigation)
                     .WithMany(p => p.LoanBookLoanerNavigations)
                     .HasForeignKey(d => d.BookLoaner)
-                    .HasConstraintName("FK__Loans__BookLoane__6477ECF3");
+                    .HasConstraintName("FK__Loans__BookLoane__17036CC0");
 
                 entity.HasOne(d => d.BookOwnerNavigation)
                     .WithMany(p => p.LoanBookOwnerNavigations)
                     .HasForeignKey(d => d.BookOwner)
-                    .HasConstraintName("FK__Loans__BookOwner__656C112C");
+                    .HasConstraintName("FK__Loans__BookOwner__17F790F9");
             });
 
             modelBuilder.Entity<User>(entity =>

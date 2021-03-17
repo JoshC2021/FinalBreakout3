@@ -9,7 +9,6 @@ namespace CommunityLibrary.Models
     {
         public int Id { get; set; }
         public bool LoanStatus { get; set; }
-        public DateTime DueDate { get; set; }
         public int? BookId { get; set; }
         public int? RecipientRating { get; set; }
         public int? OwnerRating { get; set; }
@@ -17,17 +16,17 @@ namespace CommunityLibrary.Models
         public string LoanerNote { get; set; }
         public int? BookLoaner { get; set; }
         public int? BookOwner { get; set; }
+        public DateTime? DueDate { get; set; }
 
         public bool IsOwner(int id)
         {
             return id == BookOwner;
         }
 
-        public bool IsDueDateSet()
+        public bool IsDateEmpty()
         {
-            return this.DueDate == DateTime.MinValue;
+            return this.DueDate is null;
         }
-
 
         public virtual Book Book { get; set; }
         public virtual User BookLoanerNavigation { get; set; }

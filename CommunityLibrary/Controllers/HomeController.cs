@@ -96,6 +96,7 @@ namespace CommunityLibrary.Controllers
 
             User renterInfo = _libraryDB.Users.First(x => x.Id == currentLoan.BookLoaner);
             loanDetails.ProfileImage = renterInfo.ProfileImage;
+            loanDetails.LoanerName = renterInfo.UserName;
 
             Book loanedBook = _libraryDB.Books.First(x => x.Id == currentLoan.BookId);
             loanDetails.BookTitle = _libraryDAL.GetBookInfo(loanedBook.TitleIdApi).title;
@@ -106,6 +107,9 @@ namespace CommunityLibrary.Controllers
         [HttpPost]
         public IActionResult Approval(Loan approvalUpdate)
         {
+            string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            User currentUser = _libraryDB.Users.First(x => x.UserId == user);
+
 
             Loan oldDetails = _libraryDB.Loans.First(x => x.Id == approvalUpdate.Id);
             Book loanedBook = _libraryDB.Books.First(x => x.Id == oldDetails.BookId);
@@ -116,7 +120,7 @@ namespace CommunityLibrary.Controllers
             oldDetails.OwnerNote = approvalUpdate.OwnerNote;
 
             // newly approved rentals tasks
-            if(oldDetails.LoanStatus && !oldDetails.IsDueDateSet())
+            if(oldDetails.LoanStatus && oldDetails.IsDateEmpty() && oldDetails.BookOwner == currentUser.Id)
             {
                 // set DueDate
                 DateTime due = DateTime.Today;
@@ -129,7 +133,7 @@ namespace CommunityLibrary.Controllers
             }
 
             // Remove denied rentals
-            if(!oldDetails.LoanStatus && !oldDetails.IsDueDateSet())
+            if(!oldDetails.LoanStatus && oldDetails.IsDateEmpty())
             {
                 _libraryDB.Loans.Remove(oldDetails);
                 _libraryDB.SaveChanges();
@@ -169,8 +173,9 @@ namespace CommunityLibrary.Controllers
             User bookOwner = _libraryDB.Users.First(x => x.Id == renting.BookOwner);
             newLoan.OwnerRating = bookOwner.CumulatvieRating;
             newLoan.BookOwner = bookOwner.Id;
+            newLoan.LoanStatus = true;
 
-            newLoan.DueDate = DateTime.MinValue;
+            newLoan.DueDate = null;
             // update database
             _libraryDB.Loans.Add(newLoan);
             _libraryDB.SaveChanges();
