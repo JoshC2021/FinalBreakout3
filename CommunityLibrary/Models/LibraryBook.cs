@@ -9,7 +9,7 @@ namespace CommunityLibrary.Models
     {
         public BookInfo ApiBook { get; set; }
         public Book DbBook { get; set; }
-        public string BookOwner { get; set; }
-        public string BookHolder { get; set; }
+        public AspNetUser BookOwner { get; set; }
+        public AspNetUser BookHolder { get; set; }
     }
 }
