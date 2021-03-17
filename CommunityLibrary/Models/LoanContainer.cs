@@ -13,5 +13,7 @@ namespace CommunityLibrary.Models
 
         public string ProfileImage { get; set; }
 
+        public string LoanerName { get; set; }
+
     }
 }
