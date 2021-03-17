@@ -233,8 +233,9 @@ namespace CommunityLibrary.Controllers
         {
             BookInfo apiBook = _libraryDAL.GetBookInfo(bookId);
             List<Author> authors = new List<Author>();
-          
-              foreach (Author author in apiBook.authors)
+            if (apiBook.authors is not null)
+            {
+                foreach (Author author in apiBook.authors)
                 {
                     string authorId = author.author.key;
                     Author apiAuthor = _libraryDAL.GetAuthorInfo(authorId);
@@ -242,6 +243,9 @@ namespace CommunityLibrary.Controllers
                     authors.Add(apiAuthor);
                 }
                 apiBook.authors = authors;
+            }
+              
+                
             
             return View(apiBook);
         }
