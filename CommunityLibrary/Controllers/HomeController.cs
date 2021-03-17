@@ -44,6 +44,7 @@ namespace CommunityLibrary.Controllers
                     User newCurrentUser = new User();
                     newCurrentUser.UserId = user;
                     newCurrentUser.CumulatvieRating = 5;
+                    newCurrentUser.UserName = _libraryDB.AspNetUsers.Find(user).UserName;
                     _libraryDB.Users.Add(newCurrentUser);
                     _libraryDB.SaveChanges();
                     
@@ -420,14 +421,17 @@ namespace CommunityLibrary.Controllers
                 BookInfo bookDetails = _libraryDAL.GetBookInfo(book.TitleIdApi);
 
                 List<Author> authors = new List<Author>();
-                foreach (Author author in bookDetails.authors)
+                if (bookDetails.authors is not null)
                 {
-                    string authorId = author.author.key;
-                    Author apiAuthor = _libraryDAL.GetAuthorInfo(authorId);
+                    foreach (Author author in bookDetails.authors)
+                    {
+                        string authorId = author.author.key;
+                        Author apiAuthor = _libraryDAL.GetAuthorInfo(authorId);
 
-                    authors.Add(apiAuthor);
+                        authors.Add(apiAuthor);
+                    }
+                    bookDetails.authors = authors;
                 }
-                bookDetails.authors = authors;
 
                 // container info for a book
                 LibraryBook libraryBook = new LibraryBook();

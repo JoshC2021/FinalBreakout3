@@ -1,7 +1,7 @@
 ﻿@model List<LibraryBook>
 
 
-<h1>My Favorites</h1>
+<h1>My Library</h1>
 <div class="stacked">
     @foreach (LibraryBook book in Model)
     {
@@ -19,7 +19,7 @@
                     string imgSrc = $"http://covers.openlibrary.org/b/id/{coverId}.jpg";}
                 @if (coverId != 0)
                 {
-                    <img src=" @imgSrc" alt="@book." width="100" />
+                    <img src=" @imgSrc" alt="@book.ApiBook.title" width="100" />
                 }
                 else
                 {
