@@ -3,13 +3,26 @@
 
 <h1>My Library</h1>
 <div class="stacked">
+    @if (Model.Count==0)
+    {
+    <h2>There are no books in your library! Go to the search page to find books you own. Then add them to your library so people can see they are available!</h2>
+    <a asp-action="Search" >
+        <button>
+            Search Now!
+        </button>
+    </a>
+    }
+    else
+    {
+
+
     @foreach (LibraryBook book in Model)
     {
 
         <div class="box">
 
-            <div>
 
+            <div>
                 @{int coverId = 0;
                     @if (book.ApiBook.covers is not null)
                     {
@@ -32,32 +45,32 @@
 
 
                     <h6>Author(s)</h6>
-                   @if (book.ApiBook.authors is not null)
-                   {
+                    @if (book.ApiBook.authors is not null)
+                    {
 
-                  
-                    <p>
-                        @foreach (Author author in book.ApiBook.authors)
-                        {
-                            @author.name@:,
-                        }
-                    </p>
-                   }
-                else
-                {
-                <p>Author is unknown</p>
-                }
+
+                        <p>
+                            @foreach (Author author in book.ApiBook.authors)
+                            {
+                                @author.name@:,
+                            }
+                        </p>
+                    }
+                    else
+                    {
+                        <p>Author is unknown</p>
+                    }
                     <h6>Book Availability:</h6>
                     @if (book.DbBook.AvailibilityStatus == false)
                     {
                         <p>@book.BookHolder currently has this book checked out.</p>
                     }
-                else
-                {
-                <p>This book is not currently checked out</p>
-                }
-                <h6>Loan Period:</h6>
-                <p>Users can check this book out for @book.DbBook.LoanPeriod days</p>
+                    else
+                    {
+                        <p>This book is not currently checked out</p>
+                    }
+                    <h6>Loan Period:</h6>
+                    <p>Users can check this book out for @book.DbBook.LoanPeriod days</p>
 
 
 
@@ -76,15 +89,15 @@
                     </a>
                     <form asp-action="EditLoanPeriod" asp-route-bookId="@book.DbBook.Id">
                         <label style="color:black">Enter the number of days you would allow this book to be checked out. <br />(This will not adjust the due date for any books already checked out)</label>
-                        <input type="number" min="7" name="loanPeriod"/>
-                        <input type="submit" name="Edit Loan Period"/>
-                        
+                        <input type="number" min="7" name="loanPeriod" />
+                        <input type="submit" name="Edit Loan Period" />
+
                     </form>
 
                 </div>
             </div>
         </div>
-    }
+    }}
 </div>
 
 <style>
