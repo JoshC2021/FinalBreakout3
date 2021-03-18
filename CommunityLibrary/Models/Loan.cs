@@ -21,6 +21,7 @@ namespace CommunityLibrary.Models
         public virtual Book Book { get; set; }
         public virtual User BookLoanerNavigation { get; set; }
         public virtual User BookOwnerNavigation { get; set; }
+
         public bool IsOwner(int id)
         {
             return id == BookOwner;
