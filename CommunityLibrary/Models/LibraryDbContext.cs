@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
@@ -181,21 +181,23 @@ namespace CommunityLibrary.Models
                 entity.HasOne(d => d.Book)
                     .WithMany(p => p.Loans)
                     .HasForeignKey(d => d.BookId)
-                    .HasConstraintName("FK__Loans__BookId__6383C8BA");
+                    .HasConstraintName("FK__Loans__BookId__2A164134");
 
                 entity.HasOne(d => d.BookLoanerNavigation)
                     .WithMany(p => p.LoanBookLoanerNavigations)
                     .HasForeignKey(d => d.BookLoaner)
-                    .HasConstraintName("FK__Loans__BookLoane__6477ECF3");
+                    .HasConstraintName("FK__Loans__BookLoane__2B0A656D");
 
                 entity.HasOne(d => d.BookOwnerNavigation)
                     .WithMany(p => p.LoanBookOwnerNavigations)
                     .HasForeignKey(d => d.BookOwner)
-                    .HasConstraintName("FK__Loans__BookOwner__656C112C");
+                    .HasConstraintName("FK__Loans__BookOwner__2BFE89A6");
             });
 
             modelBuilder.Entity<User>(entity =>
             {
+                entity.Property(e => e.CumulatvieRating).HasDefaultValueSql("((5))");
+
                 entity.Property(e => e.Latitude)
                     .HasMaxLength(25)
                     .IsUnicode(false);
