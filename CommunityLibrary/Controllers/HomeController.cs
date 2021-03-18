@@ -264,14 +264,14 @@ namespace CommunityLibrary.Controllers
             {
                 loanToReview.RecipientRating = Rating;
                 
-                userRecievingRating = _libraryDB.Users.Find((int)loanToReview.BookLoaner);
+                userRecievingRating = _libraryDB.Users.Find(loanToReview.BookLoaner);
 
             }
             else /*othewise the person rating is the book borrower and  we're rating the owner of the book*/
             {
                 loanToReview.OwnerRating = Rating;
                 
-                userRecievingRating = _libraryDB.Users.Find((int)loanToReview.BookOwner);
+                userRecievingRating = _libraryDB.Users.Find(loanToReview.BookOwner);
             }
             
             //update loan rating
@@ -425,10 +425,20 @@ namespace CommunityLibrary.Controllers
 
         public IActionResult RemoveFromLibrary(int bookId)
         {
-            Book currentBook = _libraryDB.Books.Find(bookId);
-            _libraryDB.Books.Remove(currentBook);
-            _libraryDB.SaveChanges();
-            return RedirectToAction("MyLibrary");
+
+            try
+            {
+                Book currentBook = _libraryDB.Books.Find(bookId);
+                _libraryDB.Books.Remove(currentBook);
+                _libraryDB.SaveChanges();
+                return RedirectToAction("MyLibrary");
+            }
+            catch (Exception)
+            {
+                TempData["DeletingBookWithAssociatedLoans"] = "I'm sorry we cannot Delete this book at this point in time";
+                return RedirectToAction("MyLibrary");
+            }
+
         }
         public IActionResult EditLoanPeriod(int bookId, int loanPeriod)
         {
