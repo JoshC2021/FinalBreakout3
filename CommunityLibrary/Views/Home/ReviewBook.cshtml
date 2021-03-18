@@ -3,8 +3,20 @@
 
 
 
-@{int coverId = Model.covers.Where(x => x > 0).First();
-    string imgSrc = $"http://covers.openlibrary.org/b/id/{coverId}.jpg";
+@{int coverId = 0;
+    @if (Model.covers is not null)
+    {
+        coverId = Model.covers.Where(x => x > 0).First();
+    }
+
+    string imgSrc = $"http://covers.openlibrary.org/b/id/{coverId}.jpg";}
+@if (coverId != 0)
+{
+    <img src=" @imgSrc" alt="@Model.title" width="100" />
+}
+else
+{
+    <img width="100" src="https://via.placeholder.com/500x750?text=No+Cover+Found" alt="No book cover image available for @Model.title">
 }
 <h2>Review @Model.title:</h2>
 <div class="container">
