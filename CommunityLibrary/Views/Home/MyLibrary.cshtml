@@ -75,7 +75,7 @@
                         </button>
                     </a>
                     <form asp-action="EditLoanPeriod" asp-route-bookId="@book.DbBook.Id">
-                        <label style="color:black">Enter the number of days you would allow this book to be checked out. (This will not adjust the due date for any books already checked out)</label>
+                        <label style="color:black">Enter the number of days you would allow this book to be checked out. <br />(This will not adjust the due date for any books already checked out)</label>
                         <input type="number" min="7" name="loanPeriod"/>
                         <input type="submit" name="Edit Loan Period"/>
                         

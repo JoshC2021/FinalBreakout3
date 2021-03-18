@@ -46,7 +46,8 @@ namespace CommunityLibrary.Controllers
                     newCurrentUser.CumulatvieRating = 5;
                     newCurrentUser.UserName = _libraryDB.AspNetUsers.Find(user).UserName;
 
-                    //Maps doesn't work if ALL users in the database don't have a location, automatically setting all users to Detroit- they can change in user profile
+                    //Maps doesn't work if ALL users in the database don't have a location,
+                    //automatically setting all users to Detroit- they can change in user profile
                     newCurrentUser.UserLocation = "Detroit";
                     newCurrentUser.Latitude = "42.33143";
                     newCurrentUser.Longitude = "-83.04575";
@@ -199,7 +200,7 @@ namespace CommunityLibrary.Controllers
 
             // grab user details
             newLoan.BookLoaner = currentUser.Id;
-            newLoan.RecipientRating = currentUser.CumulatvieRating;
+            newLoan.RecipientRating = 0;
 
 
             // grab book details
@@ -208,7 +209,7 @@ namespace CommunityLibrary.Controllers
 
             // grab owner details
             User bookOwner = _libraryDB.Users.First(x => x.Id == renting.BookOwner);
-            newLoan.OwnerRating = bookOwner.CumulatvieRating;
+            newLoan.OwnerRating = 0;
             newLoan.BookOwner = bookOwner.Id;
             newLoan.LoanStatus = true;
 
@@ -221,6 +222,86 @@ namespace CommunityLibrary.Controllers
             // go to transaction page to see added request
             return RedirectToAction("Transactions");
         }
+        public IActionResult RateLoan(int loanId)
+        {
+            //Create loan review object to pass to view
+            LoanRating loanRating = new LoanRating();
+
+            //find current user
+            string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            User currentUser = _libraryDB.Users.First(x => x.UserId == user);
+            //assign current user to LoanRating object
+            loanRating.personLeavingRating = currentUser;
+
+            //find loan in database
+            Loan loanToRate = _libraryDB.Loans.Find(loanId);
+
+            loanRating.loan = loanToRate;
+
+            //find book for bookInfo
+            Book book = _libraryDB.Books.Find(loanToRate.BookId);
+            BookInfo apibook = _libraryDAL.GetBookInfo(book.TitleIdApi);
+
+            loanRating.ApiBook = apibook;
+
+
+            return View(loanRating);
+        }
+
+        [HttpPost]
+        public IActionResult RateLoan(int loanId, int Rating)
+        {
+
+            string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            User currentUser = _libraryDB.Users.First(x => x.UserId == user);
+            User userRecievingRating = new User();
+
+            Loan loanToReview = _libraryDB.Loans.Find(loanId);
+
+            //if person leaving rating is the owner--we're rating the person who took the book
+            if (currentUser.Id == loanToReview.BookOwner)
+            {
+                loanToReview.RecipientRating = Rating;
+
+                userRecievingRating.Id = (int)loanToReview.BookLoaner;
+
+            }
+            else /*othewise we're rating the owner of the book*/
+            {
+                loanToReview.OwnerRating = Rating;
+
+                userRecievingRating.Id = (int)loanToReview.BookOwner;
+            }
+            
+            //update loan rating
+            _libraryDB.Loans.Update(loanToReview);
+            
+            //update user rating
+
+
+            List<Loan> borrowingLoans = _libraryDB.Loans.Where(x => x.BookLoaner == currentUser.Id && x.RecipientRating!=0).ToList();
+            List<Loan> lendingLoans = _libraryDB.Loans.Where(x =>x.BookOwner == currentUser.Id && x.OwnerRating !=0).ToList();
+            List<int> totalLoanRatings = new List<int>();
+            totalLoanRatings.Add(Rating);
+            foreach (Loan loan in borrowingLoans)
+            {
+                totalLoanRatings.Add((int)loan.RecipientRating);
+            }
+
+            foreach (Loan loan in lendingLoans)
+            {
+                totalLoanRatings.Add((int)loan.OwnerRating);
+            }
+
+            //Do we want to change this to a double instead of an int since it's an average?
+            int newRating = (int)totalLoanRatings.Average();
+            userRecievingRating.CumulatvieRating = newRating;
+
+            _libraryDB.Users.Update(userRecievingRating);
+            _libraryDB.SaveChanges();
+            return RedirectToAction("Transactions");
+        }
+
 
 
         public IActionResult UserMap()
@@ -285,15 +366,21 @@ namespace CommunityLibrary.Controllers
 
         public IActionResult MyLibrary()
         {
+
+            //find current user
             string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             User currentUser = _libraryDB.Users.First(x => x.UserId == user);
+
+            //Find all books where the owner is the current user
             List<Book> dbPersonalLibrary = _libraryDB.Books.Where(x => x.BookOwner == currentUser.Id).ToList();
 
             List<LibraryBook> libraryBooks = new List<LibraryBook>();
 
             foreach (Book book in dbPersonalLibrary)
             {
+                //let's get their info about that book in the api
                 BookInfo apiBook = _libraryDAL.GetBookInfo(book.TitleIdApi);
+                //let's get the author info
                 List<Author> authors = new List<Author>();
                 if (apiBook.authors is not null)
                 {
@@ -346,7 +433,7 @@ namespace CommunityLibrary.Controllers
             if (myBookReviews.Where(x => x.TitleIdApi == bookId).Count() > 0)
             {
                 //User Already Reviewed this book
-                TempData["ReviewBookError"] = "You have already reviewed this book. Go to 'My Book Reviews' if you would like to edit your review";
+                TempData["ReviewBookError"] = "You have already reviewed this book.";
                 return RedirectToAction("ViewApiInfoForSingleBook", new { bookId = bookId });
             }
             else
@@ -378,9 +465,21 @@ namespace CommunityLibrary.Controllers
         {
             string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             User currentUser = _libraryDB.Users.First(x => x.UserId == user);
+            
             List<BookReview> myBookReviews = _libraryDB.BookReviews.Where(x => x.UserId == currentUser.Id).ToList();
+            List<Review> reviews = new List<Review>();
+            
+            foreach (BookReview review in myBookReviews)
+            {
+                BookInfo apiBook = _libraryDAL.GetBookInfo(review.TitleIdApi);
+                Review review1 = new Review();
+                review1.review = review;
+                review1.ApiBook = apiBook;
+                reviews.Add(review1);
+            }
 
-            return View(myBookReviews);
+
+            return View(reviews);
         }
 
         public IActionResult Search()

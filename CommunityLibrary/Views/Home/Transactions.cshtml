@@ -1,4 +1,6 @@
 ﻿@model List<Loan>
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<IdentityUser> UserManager
 @{
     int userId = int.Parse(TempData["CurrentUser"].ToString());
 }
@@ -41,4 +43,27 @@
 {
     <p>Rental #@l.Id</p>
     @Html.ActionLink("More Details", "Approval", "Home", new { loanId = l.Id })
+
+
+
+
+
+    @if (l.BookOwner == userId && l.RecipientRating ==0)
+    {
+        <a asp-action="RateLoan" asp-route-loanId="@l.Id">
+            <button>
+                Rate your borrower
+            </button>
+        </a>
+    }
+    else if (l.BookLoaner == userId && l.OwnerRating ==0)
+    {
+        <a asp-action="RateLoan" asp-route-loanId="@l.Id">
+            <button>
+                Rate your lender
+            </button>
+        </a>
+    }
+
+
 }
