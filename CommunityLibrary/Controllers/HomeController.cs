@@ -262,15 +262,15 @@ namespace CommunityLibrary.Controllers
             if (currentUser.Id == loanToReview.BookOwner)
             {
                 loanToReview.RecipientRating = Rating;
-
-                userRecievingRating.Id = (int)loanToReview.BookLoaner;
+                
+                userRecievingRating = _libraryDB.Users.Find((int)loanToReview.BookLoaner);
 
             }
             else /*othewise we're rating the owner of the book*/
             {
                 loanToReview.OwnerRating = Rating;
-
-                userRecievingRating.Id = (int)loanToReview.BookOwner;
+                
+                userRecievingRating = _libraryDB.Users.Find((int)loanToReview.BookOwner);
             }
             
             //update loan rating
@@ -296,6 +296,14 @@ namespace CommunityLibrary.Controllers
             //Do we want to change this to a double instead of an int since it's an average?
             int newRating = (int)totalLoanRatings.Average();
             userRecievingRating.CumulatvieRating = newRating;
+            userRecievingRating.UserId = userRecievingRating.UserId;
+            userRecievingRating.Latitude = userRecievingRating.Latitude;
+            userRecievingRating.Longitude = userRecievingRating.Longitude;
+            userRecievingRating.ProfileImage = userRecievingRating.ProfileImage;
+            userRecievingRating.UserLocation = userRecievingRating.UserLocation;
+            userRecievingRating.UserName = userRecievingRating.UserName;
+
+
 
             _libraryDB.Users.Update(userRecievingRating);
             _libraryDB.SaveChanges();
