@@ -1,4 +1,11 @@
-﻿<!DOCTYPE html>
+﻿@model List<User> 
+@{ 
+    string lat = TempData["lat"].ToString();
+    string lng = TempData["lng"].ToString();
+    double latt = double.Parse(lat);
+    double lngg = double.Parse(lng);
+}
+<!DOCTYPE html>
 <html>
 <head>
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=@Secret.GoogleAPIKey" async defer></script>
@@ -7,27 +14,41 @@
         function GetMap()
         {
             //Set the Latitude and Longitude of the Map
-            var myAddress = new google.maps.LatLng(42.336231018989, -83.04983473093);
+            var myAddress = new google.maps.LatLng(@latt,@lngg);
 
             //Create Options or set different Characteristics of Google Map
             var mapOptions =
             {
                 center: myAddress,
-                zoom: 15,
-                minZoom: 15,
+                zoom: 11,
+                minZoom: 11,
                 mapTypeId: google.maps.MapTypeId.ROADMAP
             };
 
             //Display the Google map in the div control with the defined Options
             var map = new google.maps.Map(document.getElementById("myMap"), mapOptions);
 
+            
+
+            var localAddress;
+            var userName;
+            // create markers for each local
+            @foreach(User local in Model)
+            {
+                latt = double.Parse(local.Latitude);
+                lngg = double.Parse(local.Longitude);
+                @: localAddress = new google.maps.LatLng(@latt,@lngg);
+                @: marker = new google.maps.Marker({ position: localAddress, map: map,});
+
+            }
+
             //Set Marker on the Map
             var marker = new google.maps.Marker({
                 position: myAddress,
                 animation: google.maps.Animation.BOUNCE,
+                map: map,
             });
 
-            marker.setMap(map);
         }
     </script>
 </head>

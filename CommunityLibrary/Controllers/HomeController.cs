@@ -92,7 +92,7 @@ namespace CommunityLibrary.Controllers
                 string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
                 User currentUser = _libraryDB.Users.First(x => x.UserId == user);
                 List<Result> latLng = _googleDAL.GetResults(updated.UserLocation);
-                // check to see if user address exists
+                // check to see if enetered user address exists
                 if (latLng.Count != 0)
                 {
                     // set top match to user's location
@@ -102,6 +102,7 @@ namespace CommunityLibrary.Controllers
                 }
 
                 currentUser.ProfileImage = updated.ProfileImage;
+                currentUser.UserName = updated.UserName;
 
                 _libraryDB.Users.Update(currentUser);
                 _libraryDB.SaveChanges();

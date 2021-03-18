@@ -51,7 +51,6 @@ namespace CommunityLibrary.Models
             string data = GetKeyData(key);
             BookInfo bookInfo;
             SpecialBook bookSpecial;
-            CrazyBook bookAuthor;
 
             try
             {
@@ -60,26 +59,18 @@ namespace CommunityLibrary.Models
             }
             catch
             {
-                try
-                {
                     bookSpecial = JsonConvert.DeserializeObject<SpecialBook>(data);
                     return bookSpecial;
-                }
-                catch
-                {
-                    bookAuthor = JsonConvert.DeserializeObject<CrazyBook>(data);
-                    return bookAuthor;
-                }
             }
-            
-
         }
+
         public Author GetAuthorInfo(string key)
         {
             string data = GetKeyData(key);
             Author authorInfo = JsonConvert.DeserializeObject<Author>(data);
             return authorInfo;
         }
+
         public List<Doc> GetSearchTitles(string title)
         {
             string data = GetSearchDataByTitle(title);

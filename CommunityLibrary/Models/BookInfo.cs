@@ -11,15 +11,6 @@ namespace CommunityLibrary.Models
         public Description description { get; set; }
     }
 
-    public class CrazyBook : BookInfo
-    {
-        SpecialAuthor[] authors { get; set; }
-    }
-
-    public class SpecialAuthor : Author
-    {
-        public string type { get; set; }
-    }
 
     public class BookInfo
     {
