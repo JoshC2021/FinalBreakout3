@@ -259,7 +259,7 @@ namespace CommunityLibrary.Controllers
 
             Loan loanToReview = _libraryDB.Loans.Find(loanId);
 
-            //if person leaving rating is the owner--we're rating the person who took the book
+            //if person leaving rating is the owner--we're rating the book borrower
             if (currentUser.Id == loanToReview.BookOwner)
             {
                 loanToReview.RecipientRating = Rating;
@@ -267,7 +267,7 @@ namespace CommunityLibrary.Controllers
                 userRecievingRating = _libraryDB.Users.Find((int)loanToReview.BookLoaner);
 
             }
-            else /*othewise we're rating the owner of the book*/
+            else /*othewise the person rating is the book borrower and  we're rating the owner of the book*/
             {
                 loanToReview.OwnerRating = Rating;
                 
@@ -335,10 +335,15 @@ namespace CommunityLibrary.Controllers
             {
                 foreach (Author author in apiBook.authors)
                 {
+                    if (author.author.key is not null)
+                    {
+
                     string authorId = author.author.key;
                     Author apiAuthor = _libraryDAL.GetAuthorInfo(authorId);
 
                     authors.Add(apiAuthor);
+
+                    }
                 }
                 apiBook.authors = authors;
             }
@@ -469,6 +474,15 @@ namespace CommunityLibrary.Controllers
             //We need validation in case that doesn't work
             return View();
         }
+        public IActionResult DeleteReview(int reviewId)
+        {
+            BookReview bookReview = _libraryDB.BookReviews.Find(reviewId);
+            _libraryDB.BookReviews.Remove(bookReview);
+            _libraryDB.SaveChanges();
+            return RedirectToAction("MyBookReviews");
+
+        }
+        
 
         public IActionResult MyBookReviews()
         {
