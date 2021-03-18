@@ -82,11 +82,16 @@
                         </button>
                     </a>
                     <br />
-                    <a asp-action="RemoveFromLibrary" asp-route-bookId="@book.DbBook.Id">
-                        <button>
-                            Remove from Your Library
-                        </button>
-                    </a>
+                    @if (book.DbBook.AvailibilityStatus == true)
+                    {
+
+                        <p style="color:red">@TempData["DeletingBookWithAssociatedLoans"]</p>
+                        <a asp-action="RemoveFromLibrary" asp-route-bookId="@book.DbBook.Id">
+                            <button>
+                                Remove from Your Library
+                            </button>
+                        </a>
+                    }
                     <form asp-action="EditLoanPeriod" asp-route-bookId="@book.DbBook.Id">
                         <label style="color:black">Enter the number of days you would allow this book to be checked out. <br />(This will not adjust the due date for any books already checked out)</label>
                         <input type="number" min="7" name="loanPeriod" />
