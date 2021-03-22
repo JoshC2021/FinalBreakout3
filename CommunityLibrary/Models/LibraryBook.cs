@@ -11,5 +11,10 @@ namespace CommunityLibrary.Models
         public Book DbBook { get; set; }
         public string BookOwner { get; set; }
         public string BookHolder { get; set; }
+
+        public int BookOwnerId { get; set; }
+
+        public double OwnerRating { get; set; }
+
     }
 }

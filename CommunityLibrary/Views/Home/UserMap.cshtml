@@ -31,32 +31,82 @@
             var map = new google.maps.Map(document.getElementById("myMap"), mapOptions);
 
 
-
             var localAddress;
-            var userName;
-            // create markers for each local
-            @foreach(User local in Model)
-            {
-                latt = double.Parse(local.Latitude);
-                lngg = double.Parse(local.Longitude);
-                @: localAddress = new google.maps.LatLng(@latt,@lngg);
-                @: marker = new google.maps.Marker({ position: localAddress, map: map,});
-                @: google.maps.event.addListener(marker,'dblclick',function() { window.location.href="@Url.Action("LocalLibraries", "Home")";});
-            }
-
+            var infowindow = new google.maps.InfoWindow({ content: '' });
+            var mywindow = new google.maps.InfoWindow({ content: 'You' });
             //Set Marker on the Map
-            var marker = new google.maps.Marker({
+            var myMarker = new google.maps.Marker({
                 position: myAddress,
                 animation: google.maps.Animation.BOUNCE,
                 map: map,
+                icon:
+                {
+                    url: "http://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+                }
             });
 
+            myMarker.addListener('mouseover', function () { mywindow.open(map, myMarker)});
+            myMarker.addListener('mouseout', function () { mywindow.close(); });
+
+
+            // create markers for each local
+            @for(int i = 0; i<Model.Count(); i++)
+            {
+                bool noDuplicates = true;
+
+                // check if marker equal to logged in user
+                if(Model[i].Latitude == lat && Model[i].Longitude == lng)
+                {
+                    noDuplicates = false;
+                }
+
+                // identify duplicate lat and lng and move them so no overlay
+                for(int j = 0; j<Model.Count(); j++)
+                {
+                    // no need to check marker with itself
+                    if(i == j)
+                    {
+                        continue;
+                    }
+
+                    if(Model[i].Latitude == Model[j].Latitude && Model[i].Longitude == Model[j].Longitude)
+                    {
+                        noDuplicates = false;
+                    }
+
+                }
+
+                latt = double.Parse(Model[i].Latitude);
+                lngg = double.Parse(Model[i].Longitude);
+
+                // move marker if it is already on the map
+                if (noDuplicates)
+                {
+                    @: localAddress = new google.maps.LatLng(@latt,@lngg);
+                }
+                else
+                {
+                    @: localAddress = new google.maps.LatLng(@latt+ (Math.random() - .5) / 1500,@lngg+ (Math.random() -.5) / 1500);
+                }
+
+                @: marker = new google.maps.Marker({ position: localAddress, map: map,icon: {url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png"}});
+                @: google.maps.event.addListener(marker, 'click', function () { window.location.href = "@Url.Action("LocalLibraries", "Home", new {id = Model[i].Id})"; });
+                @: google.maps.event.addListener(marker, 'mouseover', function () {
+                @: infowindow.setContent("@Model[i].UserName");
+                @: infowindow.open(map, this)});
+                @:marker.addListener('mouseout', function () { infowindow.close(); });
+             }
+
+
+
         }
-        </script>
-    </head>
-    <body onLoad="GetMap()">
-        <div id="myMap" style='position:relative;width:600px;height:400px;'></div>
-    </body>
+
+    </script>
+</head>
+<body onLoad="GetMap()">
+    <h2>View a local library by cliking on a marker</h2>
+    <div id="myMap" style='position:relative;width:600px;height:400px;'></div>
+</body>
 </html>
 
 </div>

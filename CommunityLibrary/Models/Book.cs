@@ -18,6 +18,7 @@ namespace CommunityLibrary.Models
         public int? CurrentHolder { get; set; }
         public int? BookOwner { get; set; }
         public string TitleIdApi { get; set; }
+        public bool? IsActive { get; set; }
 
         public virtual User BookOwnerNavigation { get; set; }
         public virtual User CurrentHolderNavigation { get; set; }
