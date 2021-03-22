@@ -5,12 +5,14 @@
     double latt = double.Parse(lat);
     double lngg = double.Parse(lng);
 }
-<!DOCTYPE html>
-<html>
-<head>
-    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=@Secret.GoogleAPIKey" async defer></script>
+<div class="container py-4">
 
-    <script type="text/javascript">
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=@Secret.GoogleAPIKey" async defer></script>
+
+        <script type="text/javascript">
         function GetMap()
         {
             //Set the Latitude and Longitude of the Map
@@ -50,10 +52,11 @@
             });
 
         }
-    </script>
-</head>
-<body onLoad="GetMap()">
-    <div id="myMap" style='position:relative;width:600px;height:400px;'></div>
-</body>
+        </script>
+    </head>
+    <body onLoad="GetMap()">
+        <div id="myMap" style='position:relative;width:600px;height:400px;'></div>
+    </body>
 </html>
 
+</div>

@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@ViewData["Title"] - CommunityLibrary</title>
+    <title>BookCoOp</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" type="text/css">
     <link rel="stylesheet" href="~/css/theme.css" type="text/css">
     <link rel="stylesheet" href="~/css/site.css" type="text/css">
@@ -19,8 +19,7 @@
             </button>
             <div class="collapse navbar-collapse" id="navbar18">
                 <a class="navbar-brand d-none d-md-block" asp-controller="Home" asp-action="Index">
-                    <i class="fa d-inline fa-lg fa-circle"></i>
-                    <b> Community Library</b>
+                    <b>BookCoOp</b>
                 </a>
                 <ul class="navbar-nav mx-auto">
                     <li class="nav-item"> <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Home</a> </li>
@@ -36,10 +35,13 @@
             </div>
         </div>
     </nav>
-
+@*
     <div class="container">
         @RenderBody()
     </div>
+*@
+
+    @RenderBody();
 
 <div class="py-3 .footer" style="">
     <div class="container">
