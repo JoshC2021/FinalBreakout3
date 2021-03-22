@@ -34,7 +34,7 @@ namespace CommunityLibrary.Models
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseSqlServer("Server=.\\SQLExpress;Database=LibraryDb;Trusted_Connection=True;");
+                optionsBuilder.UseSqlServer("Server=tcp:bookcoop.database.windows.net,1433;Initial Catalog=LibraryDb;Persist Security Info=False;User ID=LibraryAdmin3;Password=TastyCupc@kes3;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
             }
         }
 
@@ -139,6 +139,10 @@ namespace CommunityLibrary.Models
 
             modelBuilder.Entity<Book>(entity =>
             {
+                entity.Property(e => e.IsActive)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))");
+
                 entity.Property(e => e.TitleIdApi)
                     .HasMaxLength(40)
                     .IsUnicode(false)
@@ -147,12 +151,12 @@ namespace CommunityLibrary.Models
                 entity.HasOne(d => d.BookOwnerNavigation)
                     .WithMany(p => p.BookBookOwnerNavigations)
                     .HasForeignKey(d => d.BookOwner)
-                    .HasConstraintName("FK__Books__BookOwner__60A75C0F");
+                    .HasConstraintName("FK__Books__BookOwner__7C4F7684");
 
                 entity.HasOne(d => d.CurrentHolderNavigation)
                     .WithMany(p => p.BookCurrentHolderNavigations)
                     .HasForeignKey(d => d.CurrentHolder)
-                    .HasConstraintName("FK__Books__CurrentHo__5FB337D6");
+                    .HasConstraintName("FK__Books__CurrentHo__7B5B524B");
             });
 
             modelBuilder.Entity<BookReview>(entity =>
@@ -167,7 +171,7 @@ namespace CommunityLibrary.Models
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.BookReviews)
                     .HasForeignKey(d => d.UserId)
-                    .HasConstraintName("FK__BookRevie__UserI__68487DD7");
+                    .HasConstraintName("FK__BookRevie__UserI__7A672E12");
             });
 
             modelBuilder.Entity<Loan>(entity =>
@@ -181,17 +185,17 @@ namespace CommunityLibrary.Models
                 entity.HasOne(d => d.Book)
                     .WithMany(p => p.Loans)
                     .HasForeignKey(d => d.BookId)
-                    .HasConstraintName("FK__Loans__BookId__2A164134");
+                    .HasConstraintName("FK__Loans__BookId__7D439ABD");
 
                 entity.HasOne(d => d.BookLoanerNavigation)
                     .WithMany(p => p.LoanBookLoanerNavigations)
                     .HasForeignKey(d => d.BookLoaner)
-                    .HasConstraintName("FK__Loans__BookLoane__2B0A656D");
+                    .HasConstraintName("FK__Loans__BookLoane__7E37BEF6");
 
                 entity.HasOne(d => d.BookOwnerNavigation)
                     .WithMany(p => p.LoanBookOwnerNavigations)
                     .HasForeignKey(d => d.BookOwner)
-                    .HasConstraintName("FK__Loans__BookOwner__2BFE89A6");
+                    .HasConstraintName("FK__Loans__BookOwner__7F2BE32F");
             });
 
             modelBuilder.Entity<User>(entity =>
@@ -221,7 +225,7 @@ namespace CommunityLibrary.Models
                 entity.HasOne(d => d.UserNavigation)
                     .WithMany(p => p.Users)
                     .HasForeignKey(d => d.UserId)
-                    .HasConstraintName("FK__Users__UserId__5CD6CB2B");
+                    .HasConstraintName("FK__Users__UserId__00200768");
             });
 
             OnModelCreatingPartial(modelBuilder);
