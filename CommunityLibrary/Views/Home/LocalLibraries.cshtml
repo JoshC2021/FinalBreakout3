@@ -1,15 +1,29 @@
 ﻿@model List<LibraryBook>
-@{ 
+@{
     List<LibraryBook> updates = Model;
     int localId = 0;
     List<int> uniqueIds = new List<int>();
+    bool IsMultipleLibraries = (TempData["OneLibrary"] is not null) ? false:true;
+
 }
 
-<h1>Local</h1>
+@if (IsMultipleLibraries)
+{
+    <h1>Local Libraries</h1>
+}
+else
+{
+    <h1>@Model[0].BookOwner's Library</h1>
+    <h1>Rating: @Model[0].OwnerRating</h1>
+}
 <form asp-action="LocalLibraries">
     <select name="id">
         @foreach (LibraryBook lb in Model)
         {
+            if(!IsMultipleLibraries)
+            {
+                break;
+            }
             if (!uniqueIds.Contains(lb.BookOwnerId))
             {
                 uniqueIds.Add(lb.BookOwnerId);
