@@ -27,6 +27,7 @@ namespace CommunityLibrary.Models
         {
             return this.DueDate is null;
         }
+
         public virtual Book Book { get; set; }
         public virtual User BookLoanerNavigation { get; set; }
         public virtual User BookOwnerNavigation { get; set; }

@@ -88,7 +88,7 @@
                 }
 
                 @: marker = new google.maps.Marker({ position: localAddress, map: map,icon: {url: "http://maps.google.com/mapfiles/ms/icons/red-dot.png"}});
-                @: google.maps.event.addListener(marker, 'click', function () { window.location.href = "@Url.Action("LocalLibraries", "Home")"; });
+                @: google.maps.event.addListener(marker, 'click', function () { window.location.href = "@Url.Action("LocalLibraries", "Home", new {id = Model[i].Id})"; });
                 @: google.maps.event.addListener(marker, 'mouseover', function () {
                 @: infowindow.setContent("@Model[i].UserName");
                 @: infowindow.open(map, this)});
