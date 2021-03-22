@@ -28,7 +28,7 @@
             //Display the Google map in the div control with the defined Options
             var map = new google.maps.Map(document.getElementById("myMap"), mapOptions);
 
-            
+
 
             var localAddress;
             var userName;
@@ -39,7 +39,7 @@
                 lngg = double.Parse(local.Longitude);
                 @: localAddress = new google.maps.LatLng(@latt,@lngg);
                 @: marker = new google.maps.Marker({ position: localAddress, map: map,});
-
+                @: google.maps.event.addListener(marker,'dblclick',function() { window.location.href="@Url.Action("LocalLibraries", "Home")";});
             }
 
             //Set Marker on the Map

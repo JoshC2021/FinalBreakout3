@@ -20,7 +20,7 @@ namespace CommunityLibrary
 {
     public class Startup
     {
-        string connection = "Server=.\\SQLExpress;Database=LibraryDb;Trusted_Connection=True;MultipleActiveResultSets=true";
+        string connection = $"Server=tcp:bookcoop.database.windows.net,1433;Initial Catalog=LibraryDb;Persist Security Info=False;User ID=LibraryAdmin3;Password={Secret.AZUREpass};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;";
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -32,8 +32,7 @@ namespace CommunityLibrary
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(
-                    Configuration.GetConnectionString("DefaultConnection")));
+                options.UseSqlServer((connection)));
             services.AddDatabaseDeveloperPageExceptionFilter();
 
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)

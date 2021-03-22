@@ -425,11 +425,22 @@ namespace CommunityLibrary.Controllers
 
         public IActionResult RemoveFromLibrary(int bookId)
         {
-            Book currentBook = _libraryDB.Books.Find(bookId);
-            _libraryDB.Books.Remove(currentBook);
-            _libraryDB.SaveChanges();
-            return RedirectToAction("MyLibrary");
+
+            try
+            {
+                Book currentBook = _libraryDB.Books.Find(bookId);
+                _libraryDB.Books.Remove(currentBook);
+                _libraryDB.SaveChanges();
+                return RedirectToAction("MyLibrary");
+            }
+            catch (Exception)
+            {
+                TempData["DeletingBookWithAssociatedLoans"] = "I'm sorry we cannot Delete this book at this point in time";
+                return RedirectToAction("MyLibrary");
+            }
+
         }
+
         public IActionResult EditLoanPeriod(int bookId, int loanPeriod)
         {
             Book currentBook = _libraryDB.Books.Find(bookId);
@@ -597,7 +608,7 @@ namespace CommunityLibrary.Controllers
 
             const double radConv = Math.PI / 180;
             const int R = 6371; // radius of earth in km
-            const int d = 15; // only show libraries within 20km
+            const int d = 15; // only show libraries within 15km
             double userLat = Double.Parse(currentUser.Latitude) * radConv;
             double otherLat;
             double deltaLng;
