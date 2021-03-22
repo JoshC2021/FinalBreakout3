@@ -543,10 +543,16 @@ namespace CommunityLibrary.Controllers
             List<User> notUser = _libraryDB.Users.Where(x => x.UserId != user).ToList();
             List<User> withinDistance = GetLocalUsers(currentUser, notUser);
 
-            TempData["SelectedLibrary"] = id;
+            
             // list of local book ids
             List<Book> localLibraries = new List<Book>();
 
+            // only want specific id within distance if it is set
+            if(id is not null)
+            {
+                withinDistance = withinDistance.Where(x => x.Id == id).ToList();
+            }
+            
             foreach (User local in withinDistance)
             {
                 localLibraries.AddRange(_libraryDB.Books.Where(x => x.BookOwner == local.Id));
@@ -582,6 +588,7 @@ namespace CommunityLibrary.Controllers
                 libraryBook.DbBook = book;
                 libraryBook.BookOwner = bookHolder.UserName;
                 libraryBook.BookHolder = bookOwner.UserName;
+                libraryBook.BookOwnerId = bookOwner.Id;
                 libraryBooks.Add(libraryBook);
             }
 

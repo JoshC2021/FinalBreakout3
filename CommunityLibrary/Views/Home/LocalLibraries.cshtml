@@ -1,11 +1,29 @@
 ﻿@model List<LibraryBook>
+@{ 
+    List<LibraryBook> updates = Model;
+    int localId = 0;
+    List<int> uniqueIds = new List<int>();
+}
 
+<h1>Local</h1>
+<form asp-action="LocalLibraries">
+    <select name="id">
+        @foreach (LibraryBook lb in Model)
+        {
+            if (!uniqueIds.Contains(lb.BookOwnerId))
+            {
+                uniqueIds.Add(lb.BookOwnerId);
+                <option value="@lb.BookOwnerId">@lb.BookOwner</option>
+            }
 
-<h1>Locals</h1>
+        }
+        <option value=@null>View All</option>
+    </select>
+    <input type="submit" value="Swap Library" />
+</form>
 <div class="stacked">
-    @foreach (LibraryBook book in Model)
+    @foreach (LibraryBook book in updates)
     {
-
         <div class="box">
 
             <div>
