@@ -1,156 +1,157 @@
 ﻿@model List<LibraryBook>
 
-
-<h1>My Library</h1>
-<div class="stacked">
-    @if (Model.Count == 0)
-    {
-        <h2>There are no books in your library! Go to the search page to find books you own. Then add them to your library so people can see they are available!</h2>
-        <a asp-action="Search">
-            <button>
-                Search Now!
-            </button>
-        </a>
-    }
-    else
-    {
-
-
-        @foreach (LibraryBook book in Model)
+<div class="container py-4">
+    <h1>My Library</h1>
+    <div class="stacked">
+        @if (Model.Count == 0)
+        {
+            <h2>There are no books in your library! Go to the search page to find books you own. Then add them to your library so people can see they are available!</h2>
+            <a asp-action="Search">
+                <button>
+                    Search Now!
+                </button>
+            </a>
+        }
+        else
         {
 
-            <div class="box">
+
+            @foreach (LibraryBook book in Model)
+            {
+
+                <div class="box">
 
 
-                <div>
-                    @{int coverId = 0;
-                        @if (book.ApiBook.covers is not null)
+                    <div>
+                        @{int coverId = 0;
+                            @if (book.ApiBook.covers is not null)
+                            {
+                                coverId = book.ApiBook.covers.Where(x => x > 0).First();
+                            }
+
+                            string imgSrc = $"http://covers.openlibrary.org/b/id/{coverId}.jpg";}
+                        @if (coverId != 0)
                         {
-                            coverId = book.ApiBook.covers.Where(x => x > 0).First();
-                        }
-
-                        string imgSrc = $"http://covers.openlibrary.org/b/id/{coverId}.jpg";}
-                    @if (coverId != 0)
-                    {
-                        <img src=" @imgSrc" alt="@book.ApiBook.title" width="100" />
-                    }
-                    else
-                    {
-                        <img width="100" src="https://via.placeholder.com/500x750?text=No+Cover+Found" alt="No book cover image available for @book.ApiBook.title">
-                    }
-                </div>
-                <div class="box2">
-                    <div class="center">
-                        <h1>@book.ApiBook.title</h1>
-
-
-                        <h6>Author(s)</h6>
-                        @if (book.ApiBook.authors is not null)
-                        {
-
-
-                            <p>
-                                @foreach (Author author in book.ApiBook.authors)
-                                {
-                                    @author.name@:,
-                                }
-                            </p>
+                            <img src=" @imgSrc" alt="@book.ApiBook.title" width="100" />
                         }
                         else
                         {
-                            <p>Author is unknown</p>
+                            <img width="100" src="https://via.placeholder.com/500x750?text=No+Cover+Found" alt="No book cover image available for @book.ApiBook.title">
                         }
-                        <h6>Book Availability:</h6>
-                        @if (book.DbBook.AvailibilityStatus == false)
-                        {
-                            <p>@book.BookHolder currently has this book checked out.</p>
-                        }
-                        else
-                        {
-                            <p>This book is not currently checked out</p>
-                        }
-                        <h6>Loan Period:</h6>
-                        <p>Users can check this book out for @book.DbBook.LoanPeriod days</p>
-
-
-
                     </div>
-                    <div class="right">
-                        <a asp-action="ViewApiInfoForSingleBook" asp-route-bookId="@book.ApiBook.key">
-                            <button class="right">
-                                View Book Description
-                            </button>
-                        </a>
-                        <br />
-                        @if (book.DbBook.AvailibilityStatus == true)
-                        {
+                    <div class="box2">
+                        <div class="center">
+                            <h1>@book.ApiBook.title</h1>
 
-                            <p style="color:red">@TempData["DeletingBookWithAssociatedLoans"]</p>
-                            <a asp-action="RemoveFromLibrary" asp-route-bookId="@book.DbBook.Id">
-                                <button>
-                                    Remove from Your Library
+
+                            <h6>Author(s)</h6>
+                            @if (book.ApiBook.authors is not null)
+                            {
+
+
+                                <p>
+                                    @foreach (Author author in book.ApiBook.authors)
+                                    {
+                                        @author.name@:,
+                                    }
+                                </p>
+                            }
+                            else
+                            {
+                                <p>Author is unknown</p>
+                            }
+                            <h6>Book Availability:</h6>
+                            @if (book.DbBook.AvailibilityStatus == false)
+                            {
+                                <p>@book.BookHolder currently has this book checked out.</p>
+                            }
+                            else
+                            {
+                                <p>This book is not currently checked out</p>
+                            }
+                            <h6>Loan Period:</h6>
+                            <p>Users can check this book out for @book.DbBook.LoanPeriod days</p>
+
+
+
+                        </div>
+                        <div class="right">
+                            <a asp-action="ViewApiInfoForSingleBook" asp-route-bookId="@book.ApiBook.key">
+                                <button class="right">
+                                    View Book Description
                                 </button>
                             </a>
-                         }
+                            <br />
+                            @if (book.DbBook.AvailibilityStatus == true)
+                            {
 
-                        <form asp-action="EditLoanPeriod" asp-route-bookId="@book.DbBook.Id">
-                            <label style="color:black">Enter the number of days you would allow this book to be checked out. <br />(This will not adjust the due date for any books already checked out)</label>
-                            <input type="number" min="7" name="loanPeriod" />
-                            <input type="submit" name="Edit Loan Period" />
+                                <p style="color:red">@TempData["DeletingBookWithAssociatedLoans"]</p>
+                                <a asp-action="RemoveFromLibrary" asp-route-bookId="@book.DbBook.Id">
+                                    <button>
+                                        Remove from Your Library
+                                    </button>
+                                </a>
+                            }
 
-                        </form>
+                            <form asp-action="EditLoanPeriod" asp-route-bookId="@book.DbBook.Id">
+                                <label style="color:black">Enter the number of days you would allow this book to be checked out. <br />(This will not adjust the due date for any books already checked out)</label>
+                                <input type="number" min="7" name="loanPeriod" />
+                                <input type="submit" name="Edit Loan Period" />
 
+                            </form>
+
+                        </div>
                     </div>
                 </div>
-            </div>
-        }}
+            }}
+    </div>
 </div>
 
-<style>
-    body {
-        background-color: black;
-        color: white;
-    }
-
-    .pb-3 {
-    }
-
-    .box {
-        background-color: whitesmoke;
-        padding: 25px;
-        border-radius: 25px;
-        display: flex;
-        margin: 25px;
-    }
-
-    .box2 {
-        display: flex;
-        justify-content: space-between;
-        width: 100%;
-        margin-left: 20px;
-    }
-
-    .right {
-        float: right;
-    }
-
-    .center {
-        float: left;
-        color: black;
-        font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-    }
-
-    button {
-        margin: 10px;
-        padding: 10px 20px;
-        border-radius: 5px;
-        border: none;
-        background-color: rgb(249,139,58);
-        color: rgb(17,39,80);
-    }
-
-        button:hover {
-            color: rgb(109,178,164);
-            background-color: rgba(242,107,58, .2);
+    <style>
+        body {
+            background-color: black;
+            color: white;
         }
-</style>
+
+        .pb-3 {
+        }
+
+        .box {
+            background-color: whitesmoke;
+            padding: 25px;
+            border-radius: 25px;
+            display: flex;
+            margin: 25px;
+        }
+
+        .box2 {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-left: 20px;
+        }
+
+        .right {
+            float: right;
+        }
+
+        .center {
+            float: left;
+            color: black;
+            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+        }
+
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+            background-color: rgb(249,139,58);
+            color: rgb(17,39,80);
+        }
+
+            button:hover {
+                color: rgb(109,178,164);
+                background-color: rgba(242,107,58, .2);
+            }
+    </style>

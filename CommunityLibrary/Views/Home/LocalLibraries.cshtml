@@ -1,158 +1,127 @@
-﻿@model List<LibraryBook>
-@{
-    List<LibraryBook> updates = Model;
-    int localId = 0;
-    List<int> uniqueIds = new List<int>();
-    bool IsMultipleLibraries = (TempData["OneLibrary"] is not null) ? false:true;
+@model List<LibraryBook>
 
-}
-
-@if (IsMultipleLibraries)
-{
-    <h1>Local Libraries</h1>
-}
-else
-{
-    <h1>@Model[0].BookOwner's Library</h1>
-    <h1>Rating: @Model[0].OwnerRating</h1>
-}
-<form asp-action="LocalLibraries">
-    <select name="id">
-        @foreach (LibraryBook lb in Model)
+<div class="container py-4">
+    <h1>Locals</h1>
+    <div class="stacked">
+        @foreach (LibraryBook book in Model)
         {
-            if(!IsMultipleLibraries)
-            {
-                break;
-            }
-            if (!uniqueIds.Contains(lb.BookOwnerId))
-            {
-                uniqueIds.Add(lb.BookOwnerId);
-                <option value="@lb.BookOwnerId">@lb.BookOwner</option>
-            }
 
-        }
-        <option value=@null>View All</option>
-    </select>
-    <input type="submit" value="Swap Library" />
-</form>
-<div class="stacked">
-    @foreach (LibraryBook book in updates)
-    {
-        <div class="box">
+            <div class="box">
 
-            <div>
-                @{int coverId = 0;
-                    @if (book.ApiBook.covers is not null)
-                    {
-                        coverId = book.ApiBook.covers.Where(x => x > 0).First();
-                        string imgSrc = $"http://covers.openlibrary.org/b/id/{coverId}.jpg";
-                        <img src=" @imgSrc" alt="@book.ApiBook.title" width="100" />
+                <div>
+                    @{int coverId = 0;
+                        @if (book.ApiBook.covers is not null)
+                        {
+                            coverId = book.ApiBook.covers.Where(x => x > 0).First();
+                            string imgSrc = $"http://covers.openlibrary.org/b/id/{coverId}.jpg";
+                            <img src=" @imgSrc" alt="@book.ApiBook.title" width="100" />
+                        }
+                        else
+                        {
+                            <img width="100" src="https://via.placeholder.com/500x750?text=No+Cover+Found" alt="No book cover image available for @book.ApiBook.title">
+                        }
                     }
-                    else
-                    {
-                        <img width="100" src="https://via.placeholder.com/500x750?text=No+Cover+Found" alt="No book cover image available for @book.ApiBook.title">
-                    }
-                }
 
-
-            </div>
-            <div class="box2">
-                <div class="center">
-                    <h1>@book.ApiBook.title</h1>
-
-
-                    <h6>Author(s)</h6>
-                    @if (book.ApiBook.authors is not null)
-                    {
-                        <p>
-                            @foreach (Author author in book.ApiBook.authors)
-                            {
-                                @author.name@:,
-                            }
-                        </p>
-                    }
-                    else
-                    {
-                        <p>Author is unknown</p>
-                    }
-                    <h6>Book Availability:</h6>
-                    @if (book.DbBook.AvailibilityStatus == false)
-                    {
-                        <p>@book.BookHolder currently has checked this book out.</p>
-                    }
-                    else
-                    {
-                        <p>This book is available. Submit a request and @book.BookOwner will get back to you.</p>
-                    }
 
                 </div>
-                <div class="right">
-                    <a asp-action="ViewApiInfoForSingleBook" asp-route-bookId="@book.DbBook.TitleIdApi">
-                        <button class="right">
-                            View Book Description
-                        </button>
-                    </a>
-                    <br />
-                    @if (book.DbBook.AvailibilityStatus == true)
-                    {
-                        <a asp-action="RequestLoan" asp-route-id="@book.DbBook.Id">
-                            <button>
-                                Request Book
+                <div class="box2">
+                    <div class="center">
+                        <h1>@book.ApiBook.title</h1>
+
+
+                        <h6>Author(s)</h6>
+                        @if (book.ApiBook.authors is not null)
+                        {
+                            <p>
+                                @foreach (Author author in book.ApiBook.authors)
+                                {
+                                    @author.name@:,
+                                }
+                            </p>
+                        }
+                        else
+                        {
+                            <p>Author is unknown</p>
+                        }
+                        <h6>Book Availability:</h6>
+                        @if (book.DbBook.AvailibilityStatus == false)
+                        {
+                            <p>@book.BookHolder currently has checked this book out.</p>
+                        }
+                        else
+                        {
+                            <p>This book is available. Submit a request and @book.BookOwner will get back to you.</p>
+                        }
+
+                    </div>
+                    <div class="right">
+                        <a asp-action="ViewApiInfoForSingleBook" asp-route-bookId="@book.DbBook.TitleIdApi">
+                            <button class="right">
+                                View Book Description
                             </button>
                         </a>
-                    }
+                        <br />
+                        @if (book.DbBook.AvailibilityStatus == true)
+                        {
+                            <a asp-action="RequestLoan" asp-route-id="@book.DbBook.Id">
+                                <button>
+                                    Request Book
+                                </button>
+                            </a>
+                        }
 
+                    </div>
                 </div>
             </div>
-        </div>
-    }
+        }
+    </div>
 </div>
 
-<style>
-    body {
-        background-color: black;
-        color: white;
-    }
-
-    .pb-3 {
-    }
-
-    .box {
-        background-color: whitesmoke;
-        padding: 25px;
-        border-radius: 25px;
-        display: flex;
-        margin: 25px;
-    }
-
-    .box2 {
-        display: flex;
-        justify-content: space-between;
-        width: 100%;
-        margin-left: 20px;
-    }
-
-    .right {
-        float: right;
-    }
-
-    .center {
-        float: left;
-        color: black;
-        font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-    }
-
-    button {
-        margin: 10px;
-        padding: 10px 20px;
-        border-radius: 5px;
-        border: none;
-        background-color: rgb(249,139,58);
-        color: rgb(17,39,80);
-    }
-
-        button:hover {
-            color: rgb(109,178,164);
-            background-color: rgba(242,107,58, .2);
+    <style>
+        body {
+            background-color: black;
+            color: white;
         }
-</style>
+
+        .pb-3 {
+        }
+
+        .box {
+            background-color: whitesmoke;
+            padding: 25px;
+            border-radius: 25px;
+            display: flex;
+            margin: 25px;
+        }
+
+        .box2 {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-left: 20px;
+        }
+
+        .right {
+            float: right;
+        }
+
+        .center {
+            float: left;
+            color: black;
+            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+        }
+
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            border-radius: 5px;
+            border: none;
+            background-color: rgb(249,139,58);
+            color: rgb(17,39,80);
+        }
+
+            button:hover {
+                color: rgb(109,178,164);
+                background-color: rgba(242,107,58, .2);
+            }
+    </style>
