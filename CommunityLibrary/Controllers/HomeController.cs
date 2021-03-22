@@ -534,7 +534,7 @@ namespace CommunityLibrary.Controllers
         }
 
 
-        public IActionResult LocalLibraries()
+        public IActionResult LocalLibraries(int? id)
         {
             string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             User currentUser = _libraryDB.Users.First(x => x.UserId == user);
@@ -543,6 +543,7 @@ namespace CommunityLibrary.Controllers
             List<User> notUser = _libraryDB.Users.Where(x => x.UserId != user).ToList();
             List<User> withinDistance = GetLocalUsers(currentUser, notUser);
 
+            TempData["SelectedLibrary"] = id;
             // list of local book ids
             List<Book> localLibraries = new List<Book>();
 
