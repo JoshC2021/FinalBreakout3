@@ -81,12 +81,13 @@ namespace CommunityLibrary.Controllers
             profile.BorrowingCount = _libraryDB.Loans.Count(x => x.BookLoaner == currentUser.Id && x.LoanStatus == true);
             profile.CurrentRating = Convert.ToInt32(currentUser.CumulatvieRating);
             profile.ReviewCount = _libraryDB.BookReviews.Count(x => x.UserId == currentUser.Id);
+            profile.RequestCount = 0;
 
             foreach (var l in _libraryDB.Loans.Where(x => x.BookOwner == currentUser.Id && x.LoanStatus))
             {
                 if(l.IsDateEmpty())
                 {
-                    profile.LendingCount++;
+                    profile.RequestCount++;
                 }
             }
 
