@@ -229,7 +229,7 @@ namespace CommunityLibrary.Controllers
             LoanRating loanRating = new LoanRating();
 
             //find current user
-            string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            string user = User.FindFirst(ClaimTypes.NameIdentifier).Value; 
             User currentUser = _libraryDB.Users.First(x => x.UserId == user);
             //assign current user to LoanRating object
             loanRating.personLeavingRating = currentUser;
@@ -385,8 +385,8 @@ namespace CommunityLibrary.Controllers
             string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             User currentUser = _libraryDB.Users.First(x => x.UserId == user);
 
-            //Find all books where the owner is the current user
-            List<Book> dbPersonalLibrary = _libraryDB.Books.Where(x => x.BookOwner == currentUser.Id).ToList();
+            //Find all books where the owner is the current user and the book is active
+            List<Book> dbPersonalLibrary = _libraryDB.Books.Where(x => x.BookOwner == currentUser.Id && x.IsActive== true).ToList();
 
             List<LibraryBook> libraryBooks = new List<LibraryBook>();
 
@@ -425,20 +425,24 @@ namespace CommunityLibrary.Controllers
 
         public IActionResult RemoveFromLibrary(int bookId)
         {
+            Book currentBook = _libraryDB.Books.Find(bookId);
 
-            try
+            List<Loan> thisBooksLoans = _libraryDB.Loans.Where(x => x.BookId == bookId).ToList();
+
+            if (thisBooksLoans.Count == 0)
             {
-                Book currentBook = _libraryDB.Books.Find(bookId);
+
                 _libraryDB.Books.Remove(currentBook);
-                _libraryDB.SaveChanges();
-                return RedirectToAction("MyLibrary");
-            }
-            catch (Exception)
-            {
-                TempData["DeletingBookWithAssociatedLoans"] = "I'm sorry we cannot Delete this book at this point in time";
-                return RedirectToAction("MyLibrary");
-            }
 
+            }
+            else
+            {
+                currentBook.IsActive = false;
+                _libraryDB.Update(currentBook);
+
+            }
+            _libraryDB.SaveChanges();
+            return RedirectToAction("MyLibrary");
         }
 
         public IActionResult EditLoanPeriod(int bookId, int loanPeriod)
@@ -455,16 +459,21 @@ namespace CommunityLibrary.Controllers
             string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             User currentUser = _libraryDB.Users.First(x => x.UserId == user);
             List<BookReview> myBookReviews = _libraryDB.BookReviews.Where(x => x.UserId == currentUser.Id).ToList();
+
+            BookInfo apiBook = _libraryDAL.GetBookInfo(bookId);
             if (myBookReviews.Where(x => x.TitleIdApi == bookId).Count() > 0)
             {
-                //User Already Reviewed this book
-                TempData["ReviewBookError"] = "You have already reviewed this book.";
-                return RedirectToAction("ViewApiInfoForSingleBook", new { bookId = bookId });
+                BookReview reviewToUpdate = myBookReviews.Where(x => x.TitleIdApi == bookId).First();
+                Review review = new Review();
+
+                review.review = reviewToUpdate;
+                review.ApiBook = apiBook;
+                
+                return RedirectToAction("UpdateBookReview", reviewToUpdate);
             }
             else
             {
-                BookInfo apiBook = _libraryDAL.GetBookInfo(bookId);
-
+                
                 return View(apiBook);
             }
         }
@@ -484,6 +493,24 @@ namespace CommunityLibrary.Controllers
 
             //We need validation in case that doesn't work
             return View();
+        }
+        public IActionResult UpdateBookReview (Review reviewToUpdate)
+        {
+           
+            return View(reviewToUpdate);
+        }
+        [HttpPost]
+        public IActionResult UpdateBookReview(BookReview bookReview)
+        {
+            string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            User currentUser = _libraryDB.Users.First(x => x.UserId == user);
+            BookReview reviewInDb = _libraryDB.BookReviews.First(x => x.UserId == currentUser.Id && x.TitleIdApi == bookReview.TitleIdApi);
+            reviewInDb.Rating = bookReview.Rating;
+            reviewInDb.Review = bookReview.Review;
+
+            _libraryDB.BookReviews.Update(reviewInDb);
+            _libraryDB.SaveChanges();
+            return RedirectToAction("MyBookReviews");
         }
         public IActionResult DeleteReview(int reviewId)
         {
@@ -549,7 +576,7 @@ namespace CommunityLibrary.Controllers
 
             foreach (User local in withinDistance)
             {
-                localLibraries.AddRange(_libraryDB.Books.Where(x => x.BookOwner == local.Id));
+                localLibraries.AddRange(_libraryDB.Books.Where(x => x.BookOwner == local.Id && x.IsActive==true));
             }
 
             // list of book containers
