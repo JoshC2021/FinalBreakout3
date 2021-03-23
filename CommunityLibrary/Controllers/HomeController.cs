@@ -463,13 +463,7 @@ namespace CommunityLibrary.Controllers
             BookInfo apiBook = _libraryDAL.GetBookInfo(bookId);
             if (myBookReviews.Where(x => x.TitleIdApi == bookId).Count() > 0)
             {
-                BookReview reviewToUpdate = myBookReviews.Where(x => x.TitleIdApi == bookId).First();
-                Review review = new Review();
-
-                review.review = reviewToUpdate;
-                review.ApiBook = apiBook;
-                
-                return RedirectToAction("UpdateBookReview", reviewToUpdate);
+                return RedirectToAction("MyBookReviews");
             }
             else
             {
@@ -494,21 +488,25 @@ namespace CommunityLibrary.Controllers
             //We need validation in case that doesn't work
             return View();
         }
-        public IActionResult UpdateBookReview (Review reviewToUpdate)
+        public IActionResult UpdateBookReview (int reviewId)
         {
-           
-            return View(reviewToUpdate);
+            Review review = new Review();
+            BookReview bookReview = _libraryDB.BookReviews.Find(reviewId);
+            review.review = bookReview;
+            review.ApiBook = _libraryDAL.GetBookInfo(bookReview.TitleIdApi);
+            return View(review);
         }
         [HttpPost]
         public IActionResult UpdateBookReview(BookReview bookReview)
         {
             string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             User currentUser = _libraryDB.Users.First(x => x.UserId == user);
-            BookReview reviewInDb = _libraryDB.BookReviews.First(x => x.UserId == currentUser.Id && x.TitleIdApi == bookReview.TitleIdApi);
-            reviewInDb.Rating = bookReview.Rating;
-            reviewInDb.Review = bookReview.Review;
+            List<BookReview> myBookReviews = _libraryDB.BookReviews.Where(x => x.UserId == currentUser.Id).ToList();
+            BookReview reviewToUpdate = myBookReviews.Where(x => x.TitleIdApi == bookReview.TitleIdApi).First();
 
-            _libraryDB.BookReviews.Update(reviewInDb);
+            reviewToUpdate.Review = bookReview.Review;
+            reviewToUpdate.Rating = bookReview.Rating;
+            _libraryDB.BookReviews.Update(reviewToUpdate);
             _libraryDB.SaveChanges();
             return RedirectToAction("MyBookReviews");
         }
