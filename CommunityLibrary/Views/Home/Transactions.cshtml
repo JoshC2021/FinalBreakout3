@@ -1,4 +1,4 @@
-﻿@model List<Loan>
+﻿@model List<LoanRating>
 @using Microsoft.AspNetCore.Identity
 @inject UserManager<IdentityUser> UserManager
 @{
@@ -6,64 +6,124 @@
 }
 
 <div class="container py-4">
-    <h2>Current Rentals</h2>
-    @foreach (Loan l in Model.Where(x => x.BookOwner == userId && x.LoanStatus))
+    <h2>Your Books</h2>
+    @foreach (LoanRating l in Model.Where(x => x.loan.BookOwner == userId && x.loan.LoanStatus))
     {
-        <p>Rental #@l.Id</p>
-        if (l.IsDateEmpty())
+        <p>Loan #@l.loan.Id</p>
+        int coverId = 0;
+        @if (l.ApiBook.covers is not null)
         {
-            @Html.ActionLink("Approve", "Approval", "Home", new { loanId = l.Id })
+            coverId = l.ApiBook.covers.Where(x => x > 0).First();
+        }
+
+        string imgSrc = $"http://covers.openlibrary.org/b/id/{coverId}.jpg";
+        @if (coverId != 0)
+        {
+            <img src=" @imgSrc" alt="@l.ApiBook.title" width="100" />
         }
         else
         {
+            <img width="100" src="https://via.placeholder.com/500x750?text=No+Cover+Found" alt="No book cover image available for @l.ApiBook.title">
+        }
 
-            @Html.ActionLink($"{l.DueDate.Value.ToShortDateString()}", "Approval", "Home", new { loanId = l.Id })
+        if (l.loan.IsDateEmpty())
+        {
+            <p>@l.otherUser.UserName wants to borrow @l.ApiBook.title</p>
+            @Html.ActionLink("Approve", "Approval", "Home", new { loanId = l.loan.Id })
+        }
+        else
+        {
+            <p>@l.otherUser.UserName is borrowing @l.ApiBook.title</p>
+            <br />
+            <p>Due:</p>
+            @Html.ActionLink($"{l.loan.DueDate.Value.ToShortDateString()}", "Approval", "Home", new { loanId = l.loan.Id })
         }
         <br />
     }
 
-    <h2>Currently Renting</h2>
-    @foreach (Loan l in Model.Where(x => x.BookLoaner == userId && x.LoanStatus))
+    <h2>Books You Are Borrowing</h2>
+    @foreach (LoanRating l in Model.Where(x => x.loan.BookLoaner == userId && x.loan.LoanStatus))
     {
-        <p>Rental #@l.Id</p>
-        if (l.IsDateEmpty())
+        <p>Loan #@l.loan.Id</p>
+        int coverId = 0;
+        @if (l.ApiBook.covers is not null)
         {
-            @Html.ActionLink("Pending Details", "Approval", "Home", new { loanId = l.Id })
+            coverId = l.ApiBook.covers.Where(x => x > 0).First();
+        }
+
+        string imgSrc = $"http://covers.openlibrary.org/b/id/{coverId}.jpg";
+        @if (coverId != 0)
+        {
+            <img src=" @imgSrc" alt="@l.ApiBook.title" width="100" />
         }
         else
         {
-
-            @Html.ActionLink($"{l.DueDate.Value.ToShortDateString()}", "Approval", "Home", new { loanId = l.Id })
+            <img width="100" src="https://via.placeholder.com/500x750?text=No+Cover+Found" alt="No book cover image available for @l.ApiBook.title">
+        }
+        if (l.loan.IsDateEmpty())
+        {
+            <p>@l.otherUser.UserName is reviewing your request to borrow @l.ApiBook.title</p>
+            @Html.ActionLink("Pending Details", "Approval", "Home", new { loanId = l.loan.Id })
+        }
+        else
+        {
+            <p>You are borrowing @l.otherUser.UserName's copy of @l.ApiBook.title</p>
+            <br />
+            <p>It is due:</p>
+            @Html.ActionLink($"{l.loan.DueDate.Value.ToShortDateString()}", "Approval", "Home", new { loanId = l.loan.Id })
         }
         <br />
 
     }
 
-    <h2>Rental History</h2>
-    @foreach (Loan l in Model.Where(x => x.LoanStatus == false))
+    <h2>Loan History</h2>
+    @foreach (LoanRating l in Model.Where(x => x.loan.LoanStatus == false))
     {
-        <p>Rental #@l.Id</p>
-        @Html.ActionLink("More Details", "Approval", "Home", new { loanId = l.Id })
-
-
-
-
-
-        @if (l.BookOwner == userId && l.RecipientRating == 0)
+        <p>Loan #@l.loan.Id</p>
+        int coverId = 0;
+        @if (l.ApiBook.covers is not null)
         {
-            <a asp-action="RateLoan" asp-route-loanId="@l.Id">
+            coverId = l.ApiBook.covers.Where(x => x > 0).First();
+        }
+
+        string imgSrc = $"http://covers.openlibrary.org/b/id/{coverId}.jpg";
+        @if (coverId != 0)
+        {
+            <img src=" @imgSrc" alt="@l.ApiBook.title" width="100" />
+        }
+        else
+        {
+            <img width="100" src="https://via.placeholder.com/500x750?text=No+Cover+Found" alt="No book cover image available for @l.ApiBook.title">
+        }
+        @Html.ActionLink("More Details", "Approval", "Home", new { loanId = l.loan.Id })
+
+
+        @if (l.loan.BookOwner == userId)
+        {
+<p>@l.otherUser.UserName borrowed "@l.ApiBook.title" from you!</p>
+            if (l.loan.RecipientRating == 0)
+            {
+
+
+            <a asp-action="RateLoan" asp-route-loanId="@l.loan.Id">
                 <button>
                     Rate your borrower
                 </button>
             </a>
+            }
         }
-        else if (l.BookLoaner == userId && l.OwnerRating == 0)
+        else if (l.loan.BookLoaner == userId)
         {
-            <a asp-action="RateLoan" asp-route-loanId="@l.Id">
+<p>You borrowed "@l.ApiBook.title" from @l.otherUser.UserName</p>
+            if (l.loan.OwnerRating == 0)
+            {
+            
+            <a asp-action="RateLoan" asp-route-loanId="@l.loan.Id">
                 <button>
                     Rate your lender
                 </button>
             </a>
+            }
         }
 
 

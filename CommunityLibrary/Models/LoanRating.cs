@@ -9,6 +9,7 @@ namespace CommunityLibrary.Models
     {
         public BookInfo ApiBook { get; set; }
         public Loan loan { get; set; }
-        public User personLeavingRating { get; set; }
+        public User currentUser { get; set; }
+        public User otherUser { get; set; }
     }
 }
