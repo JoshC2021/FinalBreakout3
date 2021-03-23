@@ -1,21 +1,60 @@
-﻿@model User
+﻿@model CommunityLibrary.ViewModels.ProfileViewModel
 
-    <div class="container py-4">
-        <h2>Welcome: @Model.UserName!</h2>
-        <h2>Rating: @Model.CumulatvieRating</h2>
-        <h2>Profile Img: </h2>
-        <img src="@Model.ProfileImage" alt="No Img Found" height="100px" width="auto" />
-        <h2>Location: @Model.UserLocation</h2>
-        <a asp-action="Transactions" asp-controller="Home" asp-route-Id="@Model.Id">
-            <button>
-                View my transactions
-            </button>
-        </a>
-        <br />
-        <a asp-action="UpdateProfile" asp-controller="Home" asp-route-Id="@Model.Id">
-            <button>
-                Edit Profile
-            </button>
-        </a>
-        <br />
+    <div class="pt-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 col-md-12">
+                    <h2>Your Profile</h2>
+                    <hr>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container pb-5">
+        <div class="row">
+            <div class="col-md-3">
+                <img class="img-fluid d-block" src="@Model.User.ProfileImage">
+                <div class="row py-2">
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-12"><a asp-action="UpdateProfile" asp-controller="Home" asp-route-Id="@Model.User.Id" class="btn btn-primary mr-2 btn-block">Edit profile</a></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-9 mt-0" style="">
+                <div class="col-12 col-md-12 mb-3">
+                    <h1 contenteditable="true">Welcome, @Model.User.UserName!</h1>
+                    <p >
+                        <span class="p-1 px-0 rounded bg-light">
+                            @{
+                                int rating = Convert.ToInt32(Model.CurrentRating);
+                            }
+
+                            @for (int i = 0; i < rating; i++)
+                            {
+                                <i class="fa fa-star text-warning"></i>
+                            }
+
+                            @if (rating != 5)
+                            {
+                                for (int i = 0; i < 5 - rating; i++)
+                                {
+                                    <i class="fa fa-star text-white"></i>
+                                }
+                            }
+                        </span>
+                    </p>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><i class="fa text-primary mr-2 fa-globe"></i>@Model.User.UserLocation</li>
+                        <li class="list-group-item"><i class="fa text-primary mr-2 fa-star"></i>You have a @Model.CurrentRating/5 star rating.</li>
+                        <li class="list-group-item"><i class="fa text-primary mr-2 fa-book"></i>You have @Model.OwnedBooksCount books in <a asp-action="MyLibrary" asp-controller="Home">your library</a></li>
+                        <li class="list-group-item"><i class="fa text-primary mr-2 fa-book"></i>You are borrowing <a asp-action="Transactions" asp-controller="Home">@Model.BorrowingCount books</a></li>
+                        <li class="list-group-item"><i class="fa text-primary mr-2 fa-book"></i>You are lending <a asp-action="Transactions" asp-controller="Home">@Model.LendingCount books</a> in total to other members</li>
+                        <li class="list-group-item"><i class="fa text-primary mr-2 fa-bell"></i>You have <a asp-action="Transactions" asp-controller="Home" asp-route-Id="@Model.User.Id">@Model.RequestCount pending requests</a> to borrow your books</li>
+                        <li class="list-group-item"><i class="fa text-primary mr-2 fa-pencil"></i>You've written <a asp-action="MyBookReviews" asp-controller="Home">@Model.ReviewCount book reviews</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
