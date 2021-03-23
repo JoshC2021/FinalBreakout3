@@ -44,11 +44,18 @@ else
                 </div>
                 <div class="right">
 
-                    <a asp-action="DeleteReview" asp-route-reviewId="@review.review.Id">
-                        <button class="right">
-                            Delete Review
-                        </button>
-                    </a>
+
+                        <a asp-action="DeleteReview" asp-route-reviewId="@review.review.Id">
+                            <button class="right">
+                                Delete Review
+                            </button>
+                        </a>
+                        <a asp-action="UpdateBookReview" asp-route-reviewId="@review.review.Id">
+                            <button class="right">
+                                Edit Review
+                            </button>
+                        </a>
+
 
 
                 </div>

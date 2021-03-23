@@ -1,0 +1,56 @@
+﻿
+@model Review
+
+
+
+@{int coverId = 0;
+    @if (Model.ApiBook.covers is not null)
+    {
+        coverId = Model.ApiBook.covers.Where(x => x > 0).First();
+    }
+
+    string imgSrc = $"http://covers.openlibrary.org/b/id/{coverId}.jpg";}
+@if (coverId != 0)
+{
+    <img src=" @imgSrc" alt="@Model.ApiBook.title" width="100" />
+}
+else
+{
+    <img width="100" src="https://via.placeholder.com/500x750?text=No+Cover+Found" alt="No book cover image available for @Model.ApiBook.title">
+}
+<h2>Review @Model.ApiBook.title:</h2>
+<div class="container">
+    <div class="sideBySide">
+        <img src="@imgSrc" alt="Alternate Text" width="200" />
+    </div>
+    <Div class="sideBySide">
+        <form method="post">
+            <input type="radio" name="Rating" value="5" required>
+            <label for="5">5 Stars</label><br>
+            <input type="radio" name="Rating" value="4" required>
+            <label for="4">4 Stars</label><br>
+            <input type="radio" name="Rating" value="3" required>
+            <label for="3">3 Stars</label><br>
+            <input type="radio" name="Rating" value="2" required>
+            <label for="2">2 Stars</label><br>
+            <input type="radio" name="Rating" value="1" required>
+            <label for="1">1 Star</label><br>
+            <label>Review:</label><br>
+            <input type="text" name="Review" maxlength="250" value="@Model.review.Review" required/>
+            <input type="hidden" name="UserId" value="">
+            <input type="hidden" name="TitleIdApi" value="@Model.ApiBook.key">
+            <input type="submit" value="Submit Review" />
+        </form>
+    </Div>
+</div>
+<style>
+    .container {
+        display: flex;
+    }
+
+    .sideBySide {
+        flex: 1;
+        border-radius: 25px;
+        width: fit-content();
+    }
+</style>
