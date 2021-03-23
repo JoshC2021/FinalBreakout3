@@ -3,23 +3,40 @@
     List<LibraryBook> updates = Model;
     int localId = 0;
     List<int> uniqueIds = new List<int>();
-    bool IsMultipleLibraries = (TempData["OneLibrary"] is not null) ? false:true;
+    bool IsMultipleLibraries = (TempData["OneLibrary"] is not null) ? false : true;
 
 }
 <div class="container py-4">
-@if (IsMultipleLibraries)
-{
-    <h1>Local Libraries</h1>
-}
-else
-{
-    <h1>@TempData["Name"]'s Library</h1>
-    <h1>Rating: @TempData["Rating"]</h1>
-}
-<form asp-action="LocalLibraries">
-    <select name="id">
-<div class="stacked">
-        @foreach (LibraryBook lb in Model)
+    @if (IsMultipleLibraries)
+    {
+        <h1>Local Libraries</h1>
+    }
+    else
+    {
+        <h1>@TempData["Name"]'s Library</h1>
+        <h1>Rating: @TempData["Rating"]</h1>
+    }
+    <form asp-action="LocalLibraries">
+        <select name="id">
+            @foreach (LibraryBook lb in Model)
+            {
+                if (!IsMultipleLibraries)
+                {
+                    break;
+                }
+                if (!uniqueIds.Contains(lb.BookOwnerId))
+                {
+                    uniqueIds.Add(lb.BookOwnerId);
+                    <option value="@lb.BookOwnerId">@lb.BookOwner</option>
+                }
+
+            }
+            <option value=@null>View All</option>
+        </select>
+        <input type="submit" value="Swap Library" />
+    </form>
+    <div class="stacked">
+        @foreach (LibraryBook book in updates)
         {
 
             <div class="box">
@@ -93,51 +110,51 @@ else
     </div>
 </div>
 
-    <style>
-        body {
-            background-color: black;
-            color: white;
-        }
+<style>
+    body {
+        background-color: black;
+        color: white;
+    }
 
-        .pb-3 {
-        }
+    .pb-3 {
+    }
 
-        .box {
-            background-color: whitesmoke;
-            padding: 25px;
-            border-radius: 25px;
-            display: flex;
-            margin: 25px;
-        }
+    .box {
+        background-color: whitesmoke;
+        padding: 25px;
+        border-radius: 25px;
+        display: flex;
+        margin: 25px;
+    }
 
-        .box2 {
-            display: flex;
-            justify-content: space-between;
-            width: 100%;
-            margin-left: 20px;
-        }
+    .box2 {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        margin-left: 20px;
+    }
 
-        .right {
-            float: right;
-        }
+    .right {
+        float: right;
+    }
 
-        .center {
-            float: left;
-            color: black;
-            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-        }
+    .center {
+        float: left;
+        color: black;
+        font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    }
 
-        button {
-            margin: 10px;
-            padding: 10px 20px;
-            border-radius: 5px;
-            border: none;
-            background-color: rgb(249,139,58);
-            color: rgb(17,39,80);
-        }
+    button {
+        margin: 10px;
+        padding: 10px 20px;
+        border-radius: 5px;
+        border: none;
+        background-color: rgb(249,139,58);
+        color: rgb(17,39,80);
+    }
 
-            button:hover {
-                color: rgb(109,178,164);
-                background-color: rgba(242,107,58, .2);
-            }
-    </style>
+        button:hover {
+            color: rgb(109,178,164);
+            background-color: rgba(242,107,58, .2);
+        }
+</style>
