@@ -117,7 +117,36 @@ namespace CommunityLibrary.Controllers
             TempData["CurrentUser"] = currentUser.Id;
             // grab all loans user is involved in, both sides
             List<Loan> userLoans = _libraryDB.Loans.Where(x => x.BookLoaner == currentUser.Id || x.BookOwner == currentUser.Id).ToList();
-            return View(userLoans);
+            //-------
+            List<LoanRating> userLoansMoreInfo = new List<LoanRating>();
+            foreach (Loan loan in userLoans)
+            {
+                //Create loan review object to pass to view
+                LoanRating l = new LoanRating();
+
+                //assign current user to LoanRating object
+                l.currentUser = currentUser;
+                l.loan = loan;
+
+                //find book for bookInfo
+                Book book = _libraryDB.Books.Find(loan.BookId);
+                BookInfo apibook = _libraryDAL.GetBookInfo(book.TitleIdApi);
+                l.ApiBook = apibook;
+
+                if (loan.BookOwner ==currentUser.Id)
+                {
+                    l.otherUser = _libraryDB.Users.Find(loan.BookLoaner);
+                }
+                else
+                {
+                    l.otherUser = _libraryDB.Users.Find(loan.BookOwner);
+                }
+                userLoansMoreInfo.Add(l);
+            }
+
+        
+            
+            return View(userLoansMoreInfo);
         }
 
         public IActionResult Approval(int loanId)
@@ -232,7 +261,7 @@ namespace CommunityLibrary.Controllers
             string user = User.FindFirst(ClaimTypes.NameIdentifier).Value; 
             User currentUser = _libraryDB.Users.First(x => x.UserId == user);
             //assign current user to LoanRating object
-            loanRating.personLeavingRating = currentUser;
+            loanRating.currentUser = currentUser;
 
             //find loan in database
             Loan loanToRate = _libraryDB.Loans.Find(loanId);

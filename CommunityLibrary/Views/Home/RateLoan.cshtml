@@ -26,7 +26,7 @@
                 </div>
                 <Div class="sideBySide">
                     @* if person leaving rating is the owner--we're rating the person who took the book *@
-                    @if (Model.personLeavingRating.Id == Model.loan.BookOwner)
+                    @if (Model.currentUser.Id == Model.loan.BookOwner)
                     {
 
                         <h2>Review your experience lending @Model.ApiBook.title out!</h2>

@@ -10,18 +10,25 @@
         }
 
         string imgSrc = $"http://covers.openlibrary.org/b/id/{coverId}.jpg";}
-    @if (coverId != 0)
-    {
-        <img src=" @imgSrc" alt="@Model.title" width="100" />
-    }
-    else
-    {
-        <img width="100" src="https://via.placeholder.com/500x750?text=No+Cover+Found" alt="No book cover image available for @Model.title">
-    }
+    
     <h2>Review @Model.title:</h2>
     <div class="container">
         <div class="sideBySide">
-            <img src="@imgSrc" alt="Alternate Text" width="200" />
+            @if (coverId != 0)
+            {
+                @if (coverId != 0)
+                {
+                    <img src=" @imgSrc" alt="@Model.title" width="200" />
+                }
+                else
+                {
+                    <img width="100" src="https://via.placeholder.com/500x750?text=No+Cover+Found" alt="No book cover image available for @Model.title">
+                }
+            }
+            else
+            {
+                <img width="100" src="https://via.placeholder.com/500x750?text=No+Cover+Found" alt="No book cover image available for @Model.title">
+            }
         </div>
         <Div class="sideBySide">
             <form method="post">
