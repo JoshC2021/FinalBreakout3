@@ -339,6 +339,7 @@ namespace CommunityLibrary.Controllers
             List<Author> authors = new List<Author>();
 
             TempData["AlreadyHasBook"] = DoesUserHaveThisBook(currentUser.Id, bookId);
+            TempData["AlreadyWroteReview"] = HasUserWrittenReview(currentUser.Id, bookId);
             
             if (apiBook.authors is not null)
             {
@@ -680,6 +681,20 @@ namespace CommunityLibrary.Controllers
             User currentUser = _libraryDB.Users.First(x => x.Id == userId);
             List<Book> personalLibrary = _libraryDB.Books.Where(x => x.BookOwner == currentUser.Id).ToList();
             if (personalLibrary.Where(x => x.TitleIdApi == bookId).Count() > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public bool HasUserWrittenReview(int userId, string bookId)
+        {
+            User currentUser = _libraryDB.Users.First(x => x.Id == userId);
+            List<BookReview> myBookReviews = _libraryDB.BookReviews.Where(x => x.UserId == currentUser.Id).ToList();
+            if (myBookReviews.Exists(x => x.TitleIdApi == bookId))
             {
                 return true;
             }
