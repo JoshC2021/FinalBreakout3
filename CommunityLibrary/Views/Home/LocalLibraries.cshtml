@@ -1,9 +1,25 @@
 @model List<LibraryBook>
+@{
+    List<LibraryBook> updates = Model;
+    int localId = 0;
+    List<int> uniqueIds = new List<int>();
+    bool IsMultipleLibraries = (TempData["OneLibrary"] is not null) ? false:true;
 
+}
 <div class="container py-4">
-    <h1>Locals</h1>
-    <div class="stacked">
-        @foreach (LibraryBook book in Model)
+@if (IsMultipleLibraries)
+{
+    <h1>Local Libraries</h1>
+}
+else
+{
+    <h1>@TempData["Name"]'s Library</h1>
+    <h1>Rating: @TempData["Rating"]</h1>
+}
+<form asp-action="LocalLibraries">
+    <select name="id">
+<div class="stacked">
+        @foreach (LibraryBook lb in Model)
         {
 
             <div class="box">

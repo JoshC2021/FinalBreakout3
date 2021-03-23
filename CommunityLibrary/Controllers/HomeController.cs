@@ -325,6 +325,9 @@ namespace CommunityLibrary.Controllers
             List<User> notUser = _libraryDB.Users.Where(x => x.UserId != user).ToList();
             List<User> withinDistance = GetLocalUsers(currentUser,notUser);
 
+            // Remove users with no books in their collection
+            withinDistance.RemoveAll(x => _libraryDB.Books.Count(j=> j.BookOwner == x.Id && (bool)j.IsActive) < 1);
+
             return View(withinDistance);
         }
         public IActionResult ViewApiInfoForSingleBook(string bookId)
@@ -552,6 +555,8 @@ namespace CommunityLibrary.Controllers
             {
                 TempData["OneLibrary"] = "true";
                 withinDistance = withinDistance.Where(x => x.Id == id).ToList();
+                TempData["Name"] = withinDistance[0].UserName;
+                TempData["Rating"] = withinDistance[0].CumulatvieRating;
             }
             
             foreach (User local in withinDistance)
@@ -590,7 +595,6 @@ namespace CommunityLibrary.Controllers
                 libraryBook.BookOwner = bookHolder.UserName;
                 libraryBook.BookHolder = bookOwner.UserName;
                 libraryBook.BookOwnerId = bookOwner.Id;
-                libraryBook.OwnerRating = (double)bookOwner.CumulatvieRating;
                 libraryBooks.Add(libraryBook);
             }
 
