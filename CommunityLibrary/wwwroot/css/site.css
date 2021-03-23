@@ -13,3 +13,6 @@
 }
 
 
+ul.list-group li:first-child {
+    border: none;
+}

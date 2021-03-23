@@ -45,15 +45,25 @@
                             }
                         </span>
                     </p>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item"><i class="fa text-primary mr-2 fa-globe"></i>@Model.User.UserLocation</li>
-                        <li class="list-group-item"><i class="fa text-primary mr-2 fa-star"></i>You have a @Model.CurrentRating/5 star rating.</li>
-                        <li class="list-group-item"><i class="fa text-primary mr-2 fa-book"></i>You have @Model.OwnedBooksCount books in <a asp-action="MyLibrary" asp-controller="Home">your library</a></li>
-                        <li class="list-group-item"><i class="fa text-primary mr-2 fa-book"></i>You are borrowing <a asp-action="Transactions" asp-controller="Home">@Model.BorrowingCount books</a></li>
-                        <li class="list-group-item"><i class="fa text-primary mr-2 fa-book"></i>You are lending <a asp-action="Transactions" asp-controller="Home">@Model.LendingCount books</a> in total to other members</li>
-                        <li class="list-group-item"><i class="fa text-primary mr-2 fa-bell"></i>You have <a asp-action="Transactions" asp-controller="Home" asp-route-Id="@Model.User.Id">@Model.RequestCount pending requests</a> to borrow your books</li>
-                        <li class="list-group-item"><i class="fa text-primary mr-2 fa-pencil"></i>You've written <a asp-action="MyBookReviews" asp-controller="Home">@Model.ReviewCount book reviews</a></li>
-                    </ul>
+                    <div class="row">
+                        <div class="col-md-5 py-2">
+                            <h4 class="">General</h4>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item"><i class="fa text-primary mr-2 fa-globe"></i>@Model.User.UserLocation</li>
+                                <li class="list-group-item"><i class="fa text-primary mr-2 fa-star"></i>You have a @Model.CurrentRating/5 star rating.</li>
+                                <li class="list-group-item"><i class="fa text-primary mr-2 fa-book"></i>You have @Model.OwnedBooksCount books in <a asp-action="MyLibrary" asp-controller="Home">your library</a></li>
+                                <li class="list-group-item"><i class="fa text-primary mr-2 fa-pencil"></i>You've written <a asp-action="MyBookReviews" asp-controller="Home">@Model.ReviewCount book reviews</a></li>
+                            </ul>
+                        </div>
+                        <div class="col-md-7 py-2">
+                            <h4 class="">Community Interaction</h4>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item"><i class="fa text-primary mr-2 fa-book"></i>You are borrowing <a asp-action="Transactions" asp-controller="Home">@Model.BorrowingCount books</a></li>
+                                <li class="list-group-item"><i class="fa text-primary mr-2 fa-book"></i>You are lending <a asp-action="Transactions" asp-controller="Home">@Model.LendingCount books</a> in total to other members</li>
+                                <li class="list-group-item"><i class="fa text-primary mr-2 fa-bell"></i>You have <a asp-action="Transactions" asp-controller="Home">@Model.RequestCount pending requests</a> to borrow your books</li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
