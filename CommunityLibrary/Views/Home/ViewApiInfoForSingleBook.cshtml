@@ -22,6 +22,8 @@
     {
         authorsCount = Model.authors.Count;
     }
+
+    bool alreadyHasBook = (bool)TempData["AlreadyHasBook"];
 }
 
 <div class="container py-5">
@@ -98,9 +100,17 @@
             </b>
             </div>
             <div class="col-12 col-md-12">
-                <a asp-action="AddBookToLibrary" asp-controller="Home" asp-route-bookId="@Model.key" class="btn btn-primary mr-2">Add to My Library</a>
+                @if (alreadyHasBook)
+                {
+                    <a asp-action="AddBookToLibrary" asp-controller="Home" asp-route-bookId="@Model.key" class="btn btn-primary mr-2">You own this book</a>
+
+                }
+                else
+                {
+                    <a asp-action="AddBookToLibrary" asp-controller="Home" asp-route-bookId="@Model.key" class="btn btn-primary mr-2">Add to My Library</a>
+
+                }
                 <a asp-action="ReviewBook" asp-controller="Home" asp-route-bookId="@Model.key" class="btn btn-outline-primary">Write a review&nbsp;</a>
-                @*<p style="color:red">@TempData["ReviewBookError"]</p>*@
             </div>
         </div>
     </div>
