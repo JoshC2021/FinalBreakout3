@@ -332,8 +332,14 @@ namespace CommunityLibrary.Controllers
         }
         public IActionResult ViewApiInfoForSingleBook(string bookId)
         {
+            string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            User currentUser = _libraryDB.Users.First(x => x.UserId == user);
+
             BookInfo apiBook = _libraryDAL.GetBookInfo(bookId);
             List<Author> authors = new List<Author>();
+
+            TempData["AlreadyHasBook"] = DoesUserHaveThisBook(currentUser.Id, bookId);
+            
             if (apiBook.authors is not null)
             {
                 foreach (Author author in apiBook.authors)
@@ -350,9 +356,7 @@ namespace CommunityLibrary.Controllers
                 }
                 apiBook.authors = authors;
             }
-              
-                
-            
+
             return View(apiBook);
         }
 
@@ -644,6 +648,20 @@ namespace CommunityLibrary.Controllers
             }
 
             return within;
+        }
+
+        public bool DoesUserHaveThisBook(int userId, string bookId)
+        {
+            User currentUser = _libraryDB.Users.First(x => x.Id == userId);
+            List<Book> personalLibrary = _libraryDB.Books.Where(x => x.BookOwner == currentUser.Id).ToList();
+            if (personalLibrary.Where(x => x.TitleIdApi == bookId).Count() > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }
