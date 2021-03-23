@@ -1,4 +1,5 @@
 ﻿using CommunityLibrary.Models;
+using CommunityLibrary.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
@@ -70,11 +71,26 @@ namespace CommunityLibrary.Controllers
         public IActionResult Profile()
         {
             string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-
             User currentUser = _libraryDB.Users.First(x => x.UserId == user);
-            return View(currentUser);
 
+            ProfileViewModel profile = new ProfileViewModel();
 
+            profile.User = currentUser;
+            profile.OwnedBooksCount = _libraryDB.Books.Count(x => x.BookOwner == currentUser.Id && x.IsActive == true);
+            profile.LendingCount = _libraryDB.Loans.Count(x => x.BookOwner == currentUser.Id && x.LoanStatus == true);
+            profile.BorrowingCount = _libraryDB.Loans.Count(x => x.BookLoaner == currentUser.Id && x.LoanStatus == true);
+            profile.CurrentRating = Convert.ToInt32(currentUser.CumulatvieRating);
+            profile.ReviewCount = _libraryDB.BookReviews.Count(x => x.UserId == currentUser.Id);
+
+            foreach (var l in _libraryDB.Loans.Where(x => x.BookOwner == currentUser.Id && x.LoanStatus))
+            {
+                if(l.IsDateEmpty())
+                {
+                    profile.LendingCount++;
+                }
+            }
+
+            return View(profile);
         }
 
         public IActionResult UpdateProfile(int Id)
