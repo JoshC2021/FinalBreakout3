@@ -15,6 +15,9 @@
     {
         <h1>@TempData["Name"]'s Library</h1>
         <h1>Rating: @TempData["Rating"]</h1>
+
+        var rating = Convert.ToInt32(TempData["Rating"]);
+        <partial name="_StarRatingPartial" model="rating" />
     }
     <form asp-action="LocalLibraries">
         <select name="id">

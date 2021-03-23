@@ -25,26 +25,7 @@
             <div class="col-md-9 mt-0" style="">
                 <div class="col-12 col-md-12 mb-3">
                     <h1 contenteditable="true">Welcome, @Model.User.UserName!</h1>
-                    <p >
-                        <span class="p-1 px-0 rounded bg-light">
-                            @{
-                                int rating = Convert.ToInt32(Model.CurrentRating);
-                            }
-
-                            @for (int i = 0; i < rating; i++)
-                            {
-                                <i class="fa fa-star text-warning"></i>
-                            }
-
-                            @if (rating != 5)
-                            {
-                                for (int i = 0; i < 5 - rating; i++)
-                                {
-                                    <i class="fa fa-star text-white"></i>
-                                }
-                            }
-                        </span>
-                    </p>
+                    <partial name="_StarRatingPartial" model="@Model.CurrentRating"/>
                     <div class="row">
                         <div class="col-md-5 py-2">
                             <h4 class="">General</h4>

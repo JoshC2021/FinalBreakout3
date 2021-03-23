@@ -1,0 +1,22 @@
+﻿@model int 
+
+<p>
+    <span class="p-1 px-0 rounded bg-light">
+        @{
+            int rating = Convert.ToInt32(Model);
+        }
+
+        @for (int i = 0; i < rating; i++)
+        {
+            <i class="fa fa-star text-warning"></i>
+        }
+
+        @if (rating != 5)
+        {
+            for (int i = 0; i < 5 - rating; i++)
+            {
+                <i class="fa fa-star text-white"></i>
+            }
+        }
+    </span>
+</p>
