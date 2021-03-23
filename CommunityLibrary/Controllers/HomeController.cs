@@ -141,6 +141,8 @@ namespace CommunityLibrary.Controllers
                 {
                     l.otherUser = _libraryDB.Users.Find(loan.BookOwner);
                 }
+
+                l.otherEmail = _libraryDB.AspNetUsers.Find(l.otherUser.UserId).UserName;
                 userLoansMoreInfo.Add(l);
             }
 
@@ -217,7 +219,7 @@ namespace CommunityLibrary.Controllers
             _libraryDB.Loans.Update(oldDetails);
             _libraryDB.SaveChanges();
 
-            return RedirectToAction("Profile");
+            return RedirectToAction("Transactions",currentUser.Id);
         }
 
 

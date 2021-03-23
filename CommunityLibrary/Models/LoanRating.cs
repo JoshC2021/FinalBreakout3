@@ -11,5 +11,7 @@ namespace CommunityLibrary.Models
         public Loan loan { get; set; }
         public User currentUser { get; set; }
         public User otherUser { get; set; }
+
+        public string otherEmail { get; set; }
     }
 }
