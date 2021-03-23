@@ -31,7 +31,10 @@
                 }
 
             }
-            <option value=@null>View All</option>
+            @if (!IsMultipleLibraries)
+            {
+                <option value=@null>View All</option>
+            }
         </select>
         <input type="submit" value="Swap Library" />
     </form>

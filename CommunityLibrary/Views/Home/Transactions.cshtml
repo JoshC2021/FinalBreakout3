@@ -28,16 +28,19 @@
 
         if (l.loan.IsDateEmpty())
         {
-            <p>@l.otherUser.UserName wants to borrow @l.ApiBook.title</p>
-            @Html.ActionLink("Approve", "Approval", "Home", new { loanId = l.loan.Id })
+            <p>@l.otherUser.UserName wants to borrow @l.ApiBook.title: @Html.ActionLink("Approve", "Approval", "Home", new { loanId = l.loan.Id })?</p>
+
         }
         else
         {
             <p>@l.otherUser.UserName is borrowing @l.ApiBook.title</p>
             <br />
-            <p>Due:</p>
-            @Html.ActionLink($"{l.loan.DueDate.Value.ToShortDateString()}", "Approval", "Home", new { loanId = l.loan.Id })
+            <p>Due: @Html.ActionLink($"{l.loan.DueDate.Value.ToShortDateString()}", "Approval", "Home", new { loanId = l.loan.Id })</p>
+
         }
+        string email = $"mailto:{l.otherEmail}?subject=Regarding {l.ApiBook.title}";
+
+        <a href="@email">Send Email</a>
         <br />
     }
 
@@ -46,13 +49,13 @@
     {
         <p>Loan #@l.loan.Id</p>
         int coverId = 0;
-        @if (l.ApiBook.covers is not null)
+        if (l.ApiBook.covers is not null)
         {
             coverId = l.ApiBook.covers.Where(x => x > 0).First();
         }
 
         string imgSrc = $"http://covers.openlibrary.org/b/id/{coverId}.jpg";
-        @if (coverId != 0)
+        if (coverId != 0)
         {
             <img src=" @imgSrc" alt="@l.ApiBook.title" width="100" />
         }
@@ -62,16 +65,20 @@
         }
         if (l.loan.IsDateEmpty())
         {
-            <p>@l.otherUser.UserName is reviewing your request to borrow @l.ApiBook.title</p>
-            @Html.ActionLink("Pending Details", "Approval", "Home", new { loanId = l.loan.Id })
+            <p>@l.otherUser.UserName is reviewing your request to borrow @l.ApiBook.title:  @Html.ActionLink("Pending Details", "Approval", "Home", new { loanId = l.loan.Id })</p>
+
         }
         else
         {
             <p>You are borrowing @l.otherUser.UserName's copy of @l.ApiBook.title</p>
             <br />
-            <p>It is due:</p>
-            @Html.ActionLink($"{l.loan.DueDate.Value.ToShortDateString()}", "Approval", "Home", new { loanId = l.loan.Id })
+            <p>It is due:  @Html.ActionLink($"{l.loan.DueDate.Value.ToShortDateString()}", "Approval", "Home", new { loanId = l.loan.Id })</p>
+
         }
+
+        string email = $"mailto:{l.otherEmail}?subject=Regarding {l.ApiBook.title}";
+
+        <a href="@email">Send Email</a>
         <br />
 
     }
@@ -100,29 +107,29 @@
 
         @if (l.loan.BookOwner == userId)
         {
-<p>@l.otherUser.UserName borrowed "@l.ApiBook.title" from you!</p>
+            <p>@l.otherUser.UserName borrowed "@l.ApiBook.title" from you!</p>
             if (l.loan.RecipientRating == 0)
             {
 
 
-            <a asp-action="RateLoan" asp-route-loanId="@l.loan.Id">
-                <button>
-                    Rate your borrower
-                </button>
-            </a>
+                <a asp-action="RateLoan" asp-route-loanId="@l.loan.Id">
+                    <button>
+                        Rate your borrower
+                    </button>
+                </a>
             }
         }
         else if (l.loan.BookLoaner == userId)
         {
-<p>You borrowed "@l.ApiBook.title" from @l.otherUser.UserName</p>
+            <p>You borrowed "@l.ApiBook.title" from @l.otherUser.UserName</p>
             if (l.loan.OwnerRating == 0)
             {
-            
-            <a asp-action="RateLoan" asp-route-loanId="@l.loan.Id">
-                <button>
-                    Rate your lender
-                </button>
-            </a>
+
+                <a asp-action="RateLoan" asp-route-loanId="@l.loan.Id">
+                    <button>
+                        Rate your lender
+                    </button>
+                </a>
             }
         }
 
