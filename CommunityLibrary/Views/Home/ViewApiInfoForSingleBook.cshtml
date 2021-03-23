@@ -23,7 +23,9 @@
         authorsCount = Model.authors.Count;
     }
 
+    //Useful to update button text accordingly
     bool alreadyHasBook = (bool)TempData["AlreadyHasBook"];
+    bool alreadyWroteReview = (bool)TempData["AlreadyWroteReview"];
 }
 
 <div class="container py-5">
@@ -110,7 +112,15 @@
                     <a asp-action="AddBookToLibrary" asp-controller="Home" asp-route-bookId="@Model.key" class="btn btn-primary mr-2">Add to My Library</a>
 
                 }
-                <a asp-action="ReviewBook" asp-controller="Home" asp-route-bookId="@Model.key" class="btn btn-outline-primary">Write a review&nbsp;</a>
+
+                @if (alreadyWroteReview)
+                {
+                    <a asp-action="ReviewBook" asp-controller="Home" asp-route-bookId="@Model.key" class="btn btn-outline-primary">Edit your review</a>
+                }
+                else
+                {
+                    <a asp-action="ReviewBook" asp-controller="Home" asp-route-bookId="@Model.key" class="btn btn-outline-primary">Write a review</a>
+                }
             </div>
         </div>
     </div>
