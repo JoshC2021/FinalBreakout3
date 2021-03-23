@@ -1,178 +1,117 @@
 ﻿@model BookInfo
 
 @{
+    // null checks on Book Covers and Subjects
+
     string imgSrc = null;
     if (Model.covers is not null)
     {
         int coverId = Model.covers.Where(x => x > 0).First();
-        imgSrc = $"http://covers.openlibrary.org/b/id/{coverId}.jpg";
+        imgSrc = $"http://covers.openlibrary.org/b/id/{coverId}-L.jpg";
     }
-    int allSubject = 0;
+
+    int subjectCount = 0;
+    int authorsCount = 0;
+
     if (Model.subjects is not null)
     {
-        allSubject = Model.subjects.Length;
+        subjectCount = Model.subjects.Length;
     }
 
+    if (Model.authors is not null)
+    {
+        authorsCount = Model.authors.Count;
+    }
 
+    bool alreadyHasBook = (bool)TempData["AlreadyHasBook"];
 }
-<div class="top">
-    @{ int max = 0;}
 
-    @if (Model.covers is not null)
-    {
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-3">
 
-
-        @foreach (var item in Model.covers)
-        {
-            if (item > 0)
+            @if (imgSrc == null)
             {
-                string coverIds = $"http://covers.openlibrary.org/b/id/{item}.jpg";
-                <img src="@coverIds" alt="Alternate Text" width="100" />
-                max++;
-
-            }
-            if (max >= 10)
-            {
-                break;
-            }
-        }
-    }
-   
-</div>
-
-
-<h2 class="text">@Model.title</h2>
-<div class="container">
-    @if (imgSrc == null)
-    {
-        <img class="sideBySide" width="500" src="https://via.placeholder.com/500x750?text=No+Cover+Found" alt="No book cover image available for @Model.title">
-    }
-    else
-    {
-    <img src="@imgSrc" alt="Alternate Text" class="sideBySide" width="500" />
-    }
-    <div class="text sideBySide">
-
-
-        <h4>Description</h4>
-        <p>@Model.description</p>
-        <div class="Authors">
-            <h4>Author(s):</h4>
-            @if (Model.authors is not null)
-            {
-
-
-                @foreach (Author author in Model.authors)
-                {<div class="center">
-                        @{
-                            if (author.photos is not null)
-                            {
-                                int authorImgId = author.photos.First();
-                                string authorImageSrc = $"http://covers.openlibrary.org/a/id/{authorImgId}-M.jpg";
-                                <img src="@authorImageSrc" alt="Alternate Text" width="100" />
-                            }
-
-                        }
-
-                        <p>@author.name</p>
-                    </div>
-                }
+                <img class="img-fluid d-block single-book-image" src="https://via.placeholder.com/500x750?text=No+Cover+Found">
             }
             else
             {
-                <p>Unknown Author</p>
+                <img class="img-fluid d-block single-book-image" src="@imgSrc">
             }
+
         </div>
-        <h6>Subject(s):</h6>
-        <p>
-            @{
-                int biterator = 0;
-            }
-            @if (Model.subjects is not null)
-            {
+        <div class="col-md-8 mt-3">
+            <div class="col-12 col-md-12 mb-3">
+                <h1>@Model.title</h1>
 
-            
-            @foreach (string subject in Model.subjects)
-            {
-                @subject
-                if (++biterator != allSubject && allSubject != 0)
+                <!-- Author null check and comma handler-->
+                @if (Model.authors is not null)
                 {
-                    @:,
+            <p class="lead">
+                By
+                @{
+                    int biteratorAuthor = 0;
                 }
-            }
-            }
-        </p>
-        <h6>Published:</h6>
-        <p>@Model.created.value.ToShortDateString()</p>
 
-        <a asp-action="AddBookToLibrary" asp-controller="Home" asp-route-bookId="@Model.key">
-            <button>
-                Add Book To My Library
-            </button>
-        </a>
-        <p style="color:red">@TempData["ReviewBookError"]</p>
-        <a asp-action="ReviewBook" asp-controller="Home" asp-route-bookId="@Model.key">
-            <button>
-                Add a Book Review
-            </button>
-        </a>
+                @foreach (Author author in Model.authors)
+                {
+                    <text>@author.name.Trim()</text>
+                    if (++biteratorAuthor != authorsCount && authorsCount != 0)
+                    {
+                        <text>, </text>
+                    }
+                }
 
+            </p>
+                }
+                else
+                {
+                    <p class="lead">Author Unknown</p>
+                }
+
+                @if (Model.description != null)
+                {
+                    <p>@Model.description</p>
+                }
+                else
+                {
+                    <p>There is no description for this book right now.</p>
+                }
+
+
+                <!-- Subjects null check and comma handler-->
+            <b>
+                Subjects:
+                @{
+                    int biteratorSubjects = 0;
+                }
+                @if (Model.subjects is not null)
+                {
+
+                    @foreach (string subject in Model.subjects)
+                    {
+                        <text>@subject</text>
+                        if (++biteratorSubjects != subjectCount && subjectCount != 0)
+                        {
+                            <text>, </text>
+                        }
+                    }
+                }
+            </b>
+            </div>
+            <div class="col-12 col-md-12">
+                @if (alreadyHasBook)
+                {
+                    <a asp-action="AddBookToLibrary" asp-controller="Home" asp-route-bookId="@Model.key" class="btn btn-primary mr-2">You own this book</a>
+
+                }
+                else
+                {
+                    <a asp-action="AddBookToLibrary" asp-controller="Home" asp-route-bookId="@Model.key" class="btn btn-primary mr-2">Add to My Library</a>
+
+                }
+                <a asp-action="ReviewBook" asp-controller="Home" asp-route-bookId="@Model.key" class="btn btn-outline-primary">Write a review&nbsp;</a>
+            </div>
+        </div>
     </div>
 </div>
-
-<style>
-
-    .text {
-        background-color: rgba(255, 255, 255,.8);
-        padding: 25px;
-        border-radius: 25px;
-    }
-
-    .container {
-        display: flex;
-    }
-
-    .sideBySide {
-        flex: 1;
-        border-radius: 25px;
-    }
-
-        .sideBySide:first-child {
-            margin-right: 20px;
-        }
-
-    a {
-        justify-content: center;
-    }
-
-    button {
-        margin: 10px;
-        padding: 10px 20px;
-        border-radius: 5px;
-        border: none;
-        background-color: whitesmoke;
-        color: black;
-    }
-
-    .Authors {
-        display: flex;
-    }
-
-    .center {
-        flex: 1;
-        align-content: center;
-        justify-content: center;
-    }
-
-    .top {
-        flex: 1;
-        align-content: center;
-        justify-content: center;
-        width: 100%;
-    }
-
-    button:hover {
-        color: rgb(109,178,164);
-        background-color: rgba(242,107,58, .2);
-    }
-</style>

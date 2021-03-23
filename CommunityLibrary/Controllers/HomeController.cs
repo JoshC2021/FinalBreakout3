@@ -325,12 +325,21 @@ namespace CommunityLibrary.Controllers
             List<User> notUser = _libraryDB.Users.Where(x => x.UserId != user).ToList();
             List<User> withinDistance = GetLocalUsers(currentUser,notUser);
 
+            // Remove users with no books in their collection
+            withinDistance.RemoveAll(x => _libraryDB.Books.Count(j=> j.BookOwner == x.Id && (bool)j.IsActive) < 1);
+
             return View(withinDistance);
         }
         public IActionResult ViewApiInfoForSingleBook(string bookId)
         {
+            string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            User currentUser = _libraryDB.Users.First(x => x.UserId == user);
+
             BookInfo apiBook = _libraryDAL.GetBookInfo(bookId);
             List<Author> authors = new List<Author>();
+
+            TempData["AlreadyHasBook"] = DoesUserHaveThisBook(currentUser.Id, bookId);
+            
             if (apiBook.authors is not null)
             {
                 foreach (Author author in apiBook.authors)
@@ -347,9 +356,7 @@ namespace CommunityLibrary.Controllers
                 }
                 apiBook.authors = authors;
             }
-              
-                
-            
+
             return View(apiBook);
         }
 
@@ -567,11 +574,20 @@ namespace CommunityLibrary.Controllers
             // get local users
             List<User> notUser = _libraryDB.Users.Where(x => x.UserId != user).ToList();
             List<User> withinDistance = GetLocalUsers(currentUser, notUser);
-
-            TempData["SelectedLibrary"] = id;
+            
+            
             // list of local book ids
             List<Book> localLibraries = new List<Book>();
 
+            // only want specific id within distance if it is set
+            if(id is not null)
+            {
+                TempData["OneLibrary"] = "true";
+                withinDistance = withinDistance.Where(x => x.Id == id).ToList();
+                TempData["Name"] = withinDistance[0].UserName;
+                TempData["Rating"] = withinDistance[0].CumulatvieRating;
+            }
+            
             foreach (User local in withinDistance)
             {
                 localLibraries.AddRange(_libraryDB.Books.Where(x => x.BookOwner == local.Id && x.IsActive==true));
@@ -607,6 +623,7 @@ namespace CommunityLibrary.Controllers
                 libraryBook.DbBook = book;
                 libraryBook.BookOwner = bookHolder.UserName;
                 libraryBook.BookHolder = bookOwner.UserName;
+                libraryBook.BookOwnerId = bookOwner.Id;
                 libraryBooks.Add(libraryBook);
             }
 
@@ -656,6 +673,20 @@ namespace CommunityLibrary.Controllers
             }
 
             return within;
+        }
+
+        public bool DoesUserHaveThisBook(int userId, string bookId)
+        {
+            User currentUser = _libraryDB.Users.First(x => x.Id == userId);
+            List<Book> personalLibrary = _libraryDB.Books.Where(x => x.BookOwner == currentUser.Id).ToList();
+            if (personalLibrary.Where(x => x.TitleIdApi == bookId).Count() > 0)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }
