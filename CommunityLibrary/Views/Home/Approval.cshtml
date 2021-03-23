@@ -3,49 +3,50 @@
     int userId = int.Parse(TempData["CurrentUser"].ToString());
 }
 
+<div class="container py-4">
+    <h2>Book Title: @Model.BookTitle</h2>
+    <h2>Requester: @Model.LoanerName</h2>
+    <img src="@Model.ProfileImage" alt="No Profile Image" class="sideBySide" height="100px" width="auto" />
+    <h2>Rating: @Model.LoanInfo.RecipientRating</h2>
 
-<h2>Book Title: @Model.BookTitle</h2>
-<h2>Requester: @Model.LoanerName</h2>
-<img src="@Model.ProfileImage" alt="No Profile Image" class="sideBySide" height="100px" width="auto" />
-<h2>Rating: @Model.LoanInfo.RecipientRating</h2>
-
-<form asp-action="Approval" asp-controller="Home">
-    <label>Loan Id: </label>
-    <input type="text" name="Id" value="@Model.LoanInfo.Id" readonly />
-    <br />
-    <label>Owner Comments: </label>
-    @if (Model.LoanInfo.IsOwner(userId))
-    {
-        <input type="text" name="OwnerNote" value="@Model.LoanInfo.OwnerNote" />
+    <form asp-action="Approval" asp-controller="Home">
+        <label>Loan Id: </label>
+        <input type="text" name="Id" value="@Model.LoanInfo.Id" readonly />
         <br />
-        <label>Loaner Comments: </label>
-        <input type="text" name="LoanerNote" value="@Model.LoanInfo.LoanerNote" readonly />
-    }
-    else
-    {
-        <input type="text" name="OwnerNote" value="@Model.LoanInfo.OwnerNote" readonly />
+        <label>Owner Comments: </label>
+        @if (Model.LoanInfo.IsOwner(userId))
+        {
+            <input type="text" name="OwnerNote" value="@Model.LoanInfo.OwnerNote" />
+            <br />
+            <label>Loaner Comments: </label>
+            <input type="text" name="LoanerNote" value="@Model.LoanInfo.LoanerNote" readonly />
+        }
+        else
+        {
+            <input type="text" name="OwnerNote" value="@Model.LoanInfo.OwnerNote" readonly />
+            <br />
+            <label>Loaner Comments: </label>
+            <input type="text" name="LoanerNote" value="@Model.LoanInfo.LoanerNote" />
+        }
         <br />
-        <label>Loaner Comments: </label>
-        <input type="text" name="LoanerNote" value="@Model.LoanInfo.LoanerNote" />
-    }
-    <br />
-    <br />
-    @if (Model.LoanInfo.IsDateEmpty() && Model.LoanInfo.IsOwner(userId))
-    {
-        <label>Approve Rental: </label>
-        <label>True:</label><input type="radio" name="LoanStatus" value="true" required />
-        <label>False:</label><input type="radio" name="LoanStatus" value="false" required />
-    }
-    else if (Model.LoanInfo.IsOwner(userId))
-    {
-        <label>End Loan: </label>
-        <label>Continue:</label><input type="radio" name="LoanStatus" value="true" required />
-        <label>End:</label><input type="radio" name="LoanStatus" value="false" required />
-    }
-    else
-    {
-        <input type="hidden" name="LoanStatus" value="@Model.LoanInfo.LoanStatus.ToString()"/>
-    }
-    <br />
-    <input type="submit" value="Save Changes" />
-</form>
+        <br />
+        @if (Model.LoanInfo.IsDateEmpty() && Model.LoanInfo.IsOwner(userId))
+        {
+            <label>Approve Rental: </label>
+            <label>True:</label><input type="radio" name="LoanStatus" value="true" required />
+            <label>False:</label><input type="radio" name="LoanStatus" value="false" required />
+        }
+        else if (Model.LoanInfo.IsOwner(userId))
+        {
+            <label>End Loan: </label>
+            <label>Continue:</label><input type="radio" name="LoanStatus" value="true" required />
+            <label>End:</label><input type="radio" name="LoanStatus" value="false" required />
+        }
+        else
+        {
+            <input type="hidden" name="LoanStatus" value="@Model.LoanInfo.LoanStatus.ToString()" />
+        }
+        <br />
+        <input type="submit" value="Save Changes" />
+    </form>
+</div>

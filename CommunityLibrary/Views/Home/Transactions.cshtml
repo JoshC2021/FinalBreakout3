@@ -5,65 +5,67 @@
     int userId = int.Parse(TempData["CurrentUser"].ToString());
 }
 
-<h2>Current Rentals</h2>
-@foreach (Loan l in Model.Where(x => x.BookOwner == userId && x.LoanStatus))
-{
-    <p>Rental #@l.Id</p>
-    if (l.IsDateEmpty())
+<div class="container py-4">
+    <h2>Current Rentals</h2>
+    @foreach (Loan l in Model.Where(x => x.BookOwner == userId && x.LoanStatus))
     {
-        @Html.ActionLink("Approve", "Approval", "Home", new { loanId = l.Id })
-    }
-    else
-    {
+        <p>Rental #@l.Id</p>
+        if (l.IsDateEmpty())
+        {
+            @Html.ActionLink("Approve", "Approval", "Home", new { loanId = l.Id })
+        }
+        else
+        {
 
-        @Html.ActionLink($"{l.DueDate.Value.ToShortDateString()}", "Approval", "Home", new { loanId = l.Id })
-    }
-    <br />
-}
-
-<h2>Currently Renting</h2>
-@foreach (Loan l in Model.Where(x => x.BookLoaner == userId && x.LoanStatus))
-{
-    <p>Rental #@l.Id</p>
-    if (l.IsDateEmpty())
-    {
-        @Html.ActionLink("Pending Details", "Approval", "Home", new { loanId = l.Id })
-    }
-    else
-    {
-
-        @Html.ActionLink($"{l.DueDate.Value.ToShortDateString()}", "Approval", "Home", new { loanId = l.Id })
-    }
-    <br />
-
-}
-
-<h2>Rental History</h2>
-@foreach (Loan l in Model.Where(x => x.LoanStatus == false))
-{
-    <p>Rental #@l.Id</p>
-    @Html.ActionLink("More Details", "Approval", "Home", new { loanId = l.Id })
-
-
-
-
-
-    @if (l.BookOwner == userId && l.RecipientRating ==0)
-    {
-        <a asp-action="RateLoan" asp-route-loanId="@l.Id">
-            <button>
-                Rate your borrower
-            </button>
-        </a>
-    }
-    else if (l.BookLoaner == userId && l.OwnerRating ==0)
-    {
-        <a asp-action="RateLoan" asp-route-loanId="@l.Id">
-            <button>
-                Rate your lender
-            </button>
-        </a>
+            @Html.ActionLink($"{l.DueDate.Value.ToShortDateString()}", "Approval", "Home", new { loanId = l.Id })
+        }
+        <br />
     }
 
+    <h2>Currently Renting</h2>
+    @foreach (Loan l in Model.Where(x => x.BookLoaner == userId && x.LoanStatus))
+    {
+        <p>Rental #@l.Id</p>
+        if (l.IsDateEmpty())
+        {
+            @Html.ActionLink("Pending Details", "Approval", "Home", new { loanId = l.Id })
+        }
+        else
+        {
 
-}
+            @Html.ActionLink($"{l.DueDate.Value.ToShortDateString()}", "Approval", "Home", new { loanId = l.Id })
+        }
+        <br />
+
+    }
+
+    <h2>Rental History</h2>
+    @foreach (Loan l in Model.Where(x => x.LoanStatus == false))
+    {
+        <p>Rental #@l.Id</p>
+        @Html.ActionLink("More Details", "Approval", "Home", new { loanId = l.Id })
+
+
+
+
+
+        @if (l.BookOwner == userId && l.RecipientRating == 0)
+        {
+            <a asp-action="RateLoan" asp-route-loanId="@l.Id">
+                <button>
+                    Rate your borrower
+                </button>
+            </a>
+        }
+        else if (l.BookLoaner == userId && l.OwnerRating == 0)
+        {
+            <a asp-action="RateLoan" asp-route-loanId="@l.Id">
+                <button>
+                    Rate your lender
+                </button>
+            </a>
+        }
+
+
+    }
+</div>

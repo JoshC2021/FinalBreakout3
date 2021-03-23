@@ -1,15 +1,17 @@
 ﻿@model User
 
-<form method="post">
-    <label>User Name: </label>
-    <input type="text" name="UserName" value="@Model.UserName" />
-    <br />
-    <label>Profile Image: </label>
-    <input type="text" name="ProfileImage" value="@Model.ProfileImage" />
-    <br />
-    <label>Location: </label>
-    <input type="text" name="UserLocation" value="@Model.UserLocation" />
-    <br />
-    <br />
-    <input type="submit" value="Update" />
-</form> 
+    <div class="container py-4">
+        <form method="post">
+            <label>User Name: </label>
+            <input type="text" name="UserName" value="@Model.UserName" />
+            <br />
+            <label>Profile Image: </label>
+            <input type="text" name="ProfileImage" value="@Model.ProfileImage" />
+            <br />
+            <label>Location: </label>
+            <input type="text" name="UserLocation" value="@Model.UserLocation" />
+            <br />
+            <br />
+            <input type="submit" value="Update" />
+        </form>
+    </div>

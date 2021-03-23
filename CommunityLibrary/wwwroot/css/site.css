@@ -2,5 +2,14 @@
 -------------------------------------------------- */
 
 .single-book-image {
-    width: 100%;
+    margin: 0 auto;
+    float: inherit;
 }
+
+@media (min-width: 768px) {
+    .single-book-image {
+        float: right;
+    }
+}
+
+
