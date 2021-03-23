@@ -14,7 +14,5 @@ namespace CommunityLibrary.Models
 
         public int BookOwnerId { get; set; }
 
-        public double OwnerRating { get; set; }
-
     }
 }
