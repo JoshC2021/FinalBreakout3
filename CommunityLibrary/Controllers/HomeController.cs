@@ -327,9 +327,9 @@ namespace CommunityLibrary.Controllers
             
             //update user rating
 
+            List<Loan> borrowingLoans = _libraryDB.Loans.Where(x => x.BookLoaner == userRecievingRating.Id && x.RecipientRating != 0).ToList();
+            List<Loan> lendingLoans = _libraryDB.Loans.Where(x =>x.BookOwner == userRecievingRating.Id && x.OwnerRating != 0).ToList();
 
-            List<Loan> borrowingLoans = _libraryDB.Loans.Where(x => x.BookLoaner == currentUser.Id && x.RecipientRating!=0).ToList();
-            List<Loan> lendingLoans = _libraryDB.Loans.Where(x =>x.BookOwner == currentUser.Id && x.OwnerRating !=0).ToList();
             List<int> totalLoanRatings = new List<int>();
             totalLoanRatings.Add(Rating);
             foreach (Loan loan in borrowingLoans)
@@ -343,14 +343,14 @@ namespace CommunityLibrary.Controllers
             }
 
             //Do we want to change this to a double instead of an int since it's an average?
-            int newRating = (int)totalLoanRatings.Average();
+            double newRating = Math.Round(totalLoanRatings.Average(),2);
             userRecievingRating.CumulatvieRating = newRating;
-            userRecievingRating.UserId = userRecievingRating.UserId;
-            userRecievingRating.Latitude = userRecievingRating.Latitude;
-            userRecievingRating.Longitude = userRecievingRating.Longitude;
-            userRecievingRating.ProfileImage = userRecievingRating.ProfileImage;
-            userRecievingRating.UserLocation = userRecievingRating.UserLocation;
-            userRecievingRating.UserName = userRecievingRating.UserName;
+            //userRecievingRating.UserId = userRecievingRating.UserId;
+            //userRecievingRating.Latitude = userRecievingRating.Latitude;
+            //userRecievingRating.Longitude = userRecievingRating.Longitude;
+            //userRecievingRating.ProfileImage = userRecievingRating.ProfileImage;
+            //userRecievingRating.UserLocation = userRecievingRating.UserLocation;
+            //userRecievingRating.UserName = userRecievingRating.UserName;
 
 
 
