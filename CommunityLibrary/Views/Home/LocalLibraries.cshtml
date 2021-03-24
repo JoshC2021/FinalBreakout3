@@ -19,8 +19,14 @@
         var rating = Convert.ToInt32(TempData["Rating"]);
         <partial name="_StarRatingPartial" model="rating" />
     }
+
+    @if (Model.Count < 1)
+    {
+        <h1>I'm sorry, there are no books in your local libraries.</h1>
+    }
     <form asp-action="LocalLibraries">
         <select name="id">
+
             @foreach (LibraryBook lb in Model)
             {
                 if (!IsMultipleLibraries)

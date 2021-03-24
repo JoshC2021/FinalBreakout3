@@ -345,6 +345,9 @@ namespace CommunityLibrary.Controllers
         }
         public IActionResult ViewApiInfoForSingleBook(string bookId)
         {
+
+            try
+            {
             User currentUser = CurrentUser();
 
             BookInfo apiBook = _libraryDAL.GetBookInfo(bookId);
@@ -371,19 +374,24 @@ namespace CommunityLibrary.Controllers
             }
 
             return View(apiBook);
+
+
+            }
+            catch (Exception)
+            {
+
+                TempData["errorMessage"] = "Something went wrong. We cannot display that title at the moment";
+                return RedirectToAction("ErrorMessage");
+            }
         }
 
         public IActionResult AddBookToLibrary(string bookId)
         {
-            User currentUser = CurrentUser();
-            List<Book> personalLibrary = _libraryDB.Books.Where(x => x.BookOwner == currentUser.Id).ToList();
-            if (personalLibrary.Where(x => x.TitleIdApi == bookId).Count() > 0)
+            try
             {
-                //Book already exists in their personal library--should libraries be allowed to have more than 1 copy of the same book?
-                return RedirectToAction("MyLibrary");
-            }
-            else
-            {
+                User currentUser = CurrentUser();
+                List<Book> personalLibrary = _libraryDB.Books.Where(x => x.BookOwner == currentUser.Id).ToList();
+
                 Book newLibraryBook = new Book();
                 newLibraryBook.AvailibilityStatus = true;
                 newLibraryBook.LoanPeriod = 14;
@@ -393,6 +401,12 @@ namespace CommunityLibrary.Controllers
                 _libraryDB.Books.Add(newLibraryBook);
                 _libraryDB.SaveChanges();
                 return RedirectToAction("MyLibrary");
+
+            }
+            catch (Exception)
+            {
+                TempData["errorMessage"] = "Something went wrong. We cannot add that book to your library right now";
+                return RedirectToAction("ErrorMessage");
             }
 
         }
@@ -566,7 +580,7 @@ namespace CommunityLibrary.Controllers
 
             List<Doc> results = new List<Doc>();
             results = _libraryDAL.GetSearchTitles(query);
-
+            TempData["query"] = query;
             return View(results);
         }
 
@@ -634,7 +648,10 @@ namespace CommunityLibrary.Controllers
 
             return View(libraryBooks);
         }
-
+        public IActionResult ErrorMessage()
+        {
+            return View();
+        }
         public IActionResult Privacy()
         {
             return View();
