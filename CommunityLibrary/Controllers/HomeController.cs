@@ -96,11 +96,12 @@ namespace CommunityLibrary.Controllers
             return RedirectToAction("Profile");
         }
 
-        public IActionResult Transactions(int Id)
+        public IActionResult Transactions()
         {
 
             User currentUser = CurrentUser();
             TempData["CurrentUser"] = currentUser.Id;
+
             // grab all loans user is involved in, both sides
             List<Loan> userLoans = _libraryDB.Loans.Where(x => x.BookLoaner == currentUser.Id || x.BookOwner == currentUser.Id).ToList();
             //-------
@@ -203,7 +204,7 @@ namespace CommunityLibrary.Controllers
             _libraryDB.Loans.Update(oldDetails);
             _libraryDB.SaveChanges();
 
-            return RedirectToAction("Transactions",currentUser.Id);
+            return RedirectToAction("Transactions");
         }
 
 
@@ -212,29 +213,40 @@ namespace CommunityLibrary.Controllers
             
             User currentUser = CurrentUser();
 
-            Loan newLoan = new Loan();
-
-            // grab user details
-            newLoan.BookLoaner = currentUser.Id;
-            newLoan.RecipientRating = 0;
-
-
-            // grab book details
+            // grab book details and see if user loaning already
             Book renting = _libraryDB.Books.First(x => x.Id == Id);
-            newLoan.BookId = Id;
 
-            // grab owner details
-            User bookOwner = _libraryDB.Users.First(x => x.Id == renting.BookOwner);
-            newLoan.OwnerRating = 0;
-            newLoan.BookOwner = bookOwner.Id;
-            newLoan.LoanStatus = true;
+            List<Loan> alreadyLoaning = _libraryDB.Loans.Where(x => (int)x.BookLoaner == currentUser.Id && x.BookId == renting.Id && x.LoanStatus).ToList();
 
-            newLoan.DueDate = null;
-            
-            // update database
-            _libraryDB.Loans.Add(newLoan);
-            _libraryDB.SaveChanges();
+            if (alreadyLoaning.Count < 1)
+            {
+                Loan newLoan = new Loan();
+                newLoan.BookId = Id;
 
+                // grab user details
+                newLoan.BookLoaner = currentUser.Id;
+                newLoan.RecipientRating = 0;
+
+
+                
+
+                // grab owner details
+                User bookOwner = _libraryDB.Users.First(x => x.Id == renting.BookOwner);
+                newLoan.OwnerRating = 0;
+                newLoan.BookOwner = bookOwner.Id;
+                newLoan.LoanStatus = true;
+
+                newLoan.DueDate = null;
+
+                // update database
+                _libraryDB.Loans.Add(newLoan);
+                _libraryDB.SaveChanges();
+            }
+            else
+            {
+                // unable to process loan request
+                TempData["Pending"] = "Could not complete request: You have already requested this book";
+            }
             // go to transaction page to see added request
             return RedirectToAction("Transactions");
         }
