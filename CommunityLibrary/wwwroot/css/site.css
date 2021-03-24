@@ -1,6 +1,10 @@
 ﻿/* C U S T O M BooCoOp
 -------------------------------------------------- */
 
+.profile-image {
+    margin: 0 auto;
+}
+
 .single-book-image {
     margin: 0 auto;
     float: inherit;
