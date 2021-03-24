@@ -20,3 +20,27 @@
 ul.list-group li:first-child {
     border: none;
 }
+
+/* Transaction Text Chat Bubbles
+-------------------------------------------------- */
+.chat-bubble-container-them {
+    height: 100%;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+}
+
+.chat-bubble-container-you {
+    height: 100%;
+    display: flex;
+    justify-content: end;
+    align-items: center;
+}
+.chat-bubble-container-them p.bubble, .chat-bubble-container-you p.bubble {
+    position: relative;
+    max-width: 30em;
+    background-color: #fff;
+    padding: 1.125em 1.5em;
+    border-radius: 1rem;
+    box-shadow: 0 0.125rem 0.5rem rgba(0, 0, 0, .3), 0 0.0625rem 0.125rem rgba(0, 0, 0, .2);
+}

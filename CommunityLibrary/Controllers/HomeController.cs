@@ -179,6 +179,7 @@ namespace CommunityLibrary.Controllers
             string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             User currentUser = _libraryDB.Users.First(x => x.UserId == user);
             TempData["CurrentUser"] = currentUser.Id;
+            TempData["RequesterRating"] = Convert.ToInt32(currentUser.CumulatvieRating);
 
             Loan currentLoan = _libraryDB.Loans.First(x => x.Id == loanId);
             LoanContainer loanDetails = new LoanContainer();

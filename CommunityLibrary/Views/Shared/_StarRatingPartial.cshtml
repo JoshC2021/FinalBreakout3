@@ -5,12 +5,10 @@
         @{
             int rating = Convert.ToInt32(Model);
         }
-
         @for (int i = 0; i < rating; i++)
         {
             <i class="fa fa-star text-warning"></i>
         }
-
         @if (rating != 5)
         {
             for (int i = 0; i < 5 - rating; i++)
