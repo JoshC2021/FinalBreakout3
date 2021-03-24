@@ -310,15 +310,7 @@ namespace CommunityLibrary.Controllers
             //Do we want to change this to a double instead of an int since it's an average?
             double newRating = Math.Round(totalLoanRatings.Average(),2);
             userRecievingRating.CumulatvieRating = newRating;
-            //userRecievingRating.UserId = userRecievingRating.UserId;
-            //userRecievingRating.Latitude = userRecievingRating.Latitude;
-            //userRecievingRating.Longitude = userRecievingRating.Longitude;
-            //userRecievingRating.ProfileImage = userRecievingRating.ProfileImage;
-            //userRecievingRating.UserLocation = userRecievingRating.UserLocation;
-            //userRecievingRating.UserName = userRecievingRating.UserName;
-
-
-
+       
             _libraryDB.Users.Update(userRecievingRating);
             _libraryDB.SaveChanges();
             return RedirectToAction("Transactions");
