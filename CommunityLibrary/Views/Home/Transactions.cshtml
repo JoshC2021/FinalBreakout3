@@ -3,7 +3,8 @@
 @inject UserManager<IdentityUser> UserManager
 @{
     int userId = int.Parse(TempData["CurrentUser"].ToString());
-    var message = TempData["Pending"] ?? string.Empty;
+    var pending = TempData["Pending"] ?? string.Empty;
+    var loaned = TempData["Loaned"] ?? string.Empty;
 }
 
 <div class="container py-4">
@@ -139,7 +140,14 @@
 </div>
 
 <script type="text/javascript">
-var message = '@message';
-if(message)
-    alert(message);
+    var message = '@pending';
+    if (message)
+    {
+        alert(message);
+    }
+    message = '@loaned';
+    if (message) {
+        alert(message);
+    }
+
 </script>

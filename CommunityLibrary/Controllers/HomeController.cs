@@ -166,6 +166,14 @@ namespace CommunityLibrary.Controllers
             Loan oldDetails = _libraryDB.Loans.First(x => x.Id == approvalUpdate.Id);
             Book loanedBook = _libraryDB.Books.First(x => x.Id == oldDetails.BookId);
 
+            // check to see if user has loaned this book out already
+            if (loanedBook.AvailibilityStatus == false && approvalUpdate.LoanStatus)
+            {
+                // unable to approve loan request
+                TempData["Loaned"] = "Could not complete request: You have already loaned out this book";
+                return RedirectToAction("Transactions");
+            }
+
             // update status and comments
             oldDetails.LoanStatus = approvalUpdate.LoanStatus;
             oldDetails.LoanerNote = approvalUpdate.LoanerNote;
@@ -191,7 +199,7 @@ namespace CommunityLibrary.Controllers
             {
                 _libraryDB.Loans.Remove(oldDetails);
                 _libraryDB.SaveChanges();
-                return RedirectToAction("Profile");
+                return RedirectToAction("Transactions");
             }
 
             // Ended transactions, revert book to owner
