@@ -6,6 +6,10 @@
 }
 
 <div class="container py-4">
+    @if(Model.Count<1)
+    {
+    <h2>It looks like you haven't borrowed or loaned any books yet...</h2>
+    }
     <h2>Your Books</h2>
     @foreach (LoanRating l in Model.Where(x => x.loan.BookOwner == userId && x.loan.LoanStatus))
     {
