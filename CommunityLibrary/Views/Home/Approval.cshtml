@@ -8,18 +8,23 @@
     <h2>Book Title: @Model.BookTitle</h2>
     <h2>Requester: @Model.LoanerName</h2>
     <img src="@Model.ProfileImage" alt="No Profile Image" class="sideBySide" height="100px" width="auto" />
+    <h2>Rating: @Model.LoanInfo.RecipientRating</h2>
 
     <form asp-action="Approval" asp-controller="Home">
+        <label>Loan Id: </label>
+        <input type="text" name="Id" value="@Model.LoanInfo.Id" readonly />
+        <br />
         <label>Owner Comments: </label>
         @if (Model.LoanInfo.IsOwner(currentUserId))
         {
             <input type="text" name="OwnerNote" value="@Model.LoanInfo.OwnerNote" />
             <br />
-            <p>@Model.LoanInfo.LoanerNote</p>
+            <label>Loaner Comments: </label>
+            <input type="text" name="LoanerNote" value="@Model.LoanInfo.LoanerNote" readonly />
         }
         else
         {
-            <p>@Model.LoanInfo.OwnerNote</p>
+            <input type="text" name="OwnerNote" value="@Model.LoanInfo.OwnerNote" readonly />
             <br />
             <label>Loaner Comments: </label>
             <input type="text" name="LoanerNote" value="@Model.LoanInfo.LoanerNote" />
