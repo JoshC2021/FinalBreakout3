@@ -91,6 +91,11 @@ namespace CommunityLibrary.Controllers
                 }
             }
 
+            if (profile.User.ProfileImage == null)
+            {
+                profile.User.ProfileImage = "../default.png";
+            }
+
             return View(profile);
         }
 
