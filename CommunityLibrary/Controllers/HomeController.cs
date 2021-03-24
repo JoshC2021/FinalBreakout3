@@ -28,50 +28,14 @@ namespace CommunityLibrary.Controllers
         [AllowAnonymous]
         public IActionResult Index()
         {
-            try
-            {
-                //see if they're logged in---if this string fails-they're not logged-in
-                //if they're not logged in--just send them to the view via the catch
-                string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-                try
-                {
-                    //If they're logged in- find that identity userId within the user table 
-                    User currentUser = _libraryDB.Users.Where(x=>x.UserId==user).First();
-                }
-                catch (Exception)
-                {
-                    //if the identity userId isn't in the user table--make a new user
-                    //doing this here because all users are routed to the index page after logging in
-                    User newCurrentUser = new User();
-                    newCurrentUser.UserId = user;
-                    newCurrentUser.CumulatvieRating = 5;
-                    newCurrentUser.UserName = _libraryDB.AspNetUsers.Find(user).UserName;
-
-                    //Maps doesn't work if ALL users in the database don't have a location,
-                    //automatically setting all users to Detroit- they can change in user profile
-                    newCurrentUser.UserLocation = "Detroit";
-                    newCurrentUser.Latitude = "42.33143";
-                    newCurrentUser.Longitude = "-83.04575";
-                    _libraryDB.Users.Add(newCurrentUser);
-                    _libraryDB.SaveChanges();
-                    
-                }
-                
-                return View();
-            }
-            catch (Exception)
-            {
-                
-                return View();
-            }
-
+            return View();
         }
 
 
         public IActionResult Profile()
         {
-            string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            User currentUser = _libraryDB.Users.First(x => x.UserId == user);
+            
+            User currentUser = CurrentUser();
 
             ProfileViewModel profile = new ProfileViewModel();
 
@@ -96,7 +60,7 @@ namespace CommunityLibrary.Controllers
 
         public IActionResult UpdateProfile(int Id)
         {
-            User currentUser = _libraryDB.Users.First(x => x.Id == Id);
+            User currentUser = CurrentUser();
             return View(currentUser);
         }
 
@@ -106,8 +70,8 @@ namespace CommunityLibrary.Controllers
 
             if (ModelState.IsValid)
             {
-                string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-                User currentUser = _libraryDB.Users.First(x => x.UserId == user);
+
+                User currentUser = CurrentUser();
                 List<Result> latLng = _googleDAL.GetResults(updated.UserLocation);
                 // check to see if enetered user address exists
                 if (latLng.Count != 0)
@@ -129,8 +93,8 @@ namespace CommunityLibrary.Controllers
 
         public IActionResult Transactions(int Id)
         {
-            string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            User currentUser = _libraryDB.Users.First(x => x.UserId == user);
+
+            User currentUser = CurrentUser();
             TempData["CurrentUser"] = currentUser.Id;
             // grab all loans user is involved in, both sides
             List<Loan> userLoans = _libraryDB.Loans.Where(x => x.BookLoaner == currentUser.Id || x.BookOwner == currentUser.Id).ToList();
@@ -171,8 +135,7 @@ namespace CommunityLibrary.Controllers
         public IActionResult Approval(int loanId)
         {
             // Populate container with necessary info then send to view
-            string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            User currentUser = _libraryDB.Users.First(x => x.UserId == user);
+            User currentUser = CurrentUser();
             TempData["CurrentUser"] = currentUser.Id;
 
             Loan currentLoan = _libraryDB.Loans.First(x => x.Id == loanId);
@@ -192,8 +155,7 @@ namespace CommunityLibrary.Controllers
         [HttpPost]
         public IActionResult Approval(Loan approvalUpdate)
         {
-            string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            User currentUser = _libraryDB.Users.First(x => x.UserId == user);
+            User currentUser = CurrentUser();
 
             Loan oldDetails = _libraryDB.Loans.First(x => x.Id == approvalUpdate.Id);
             Book loanedBook = _libraryDB.Books.First(x => x.Id == oldDetails.BookId);
@@ -242,8 +204,8 @@ namespace CommunityLibrary.Controllers
 
         public IActionResult RequestLoan(int Id)
         {
-            string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            User currentUser = _libraryDB.Users.First(x => x.UserId == user);
+            
+            User currentUser = CurrentUser();
 
             Loan newLoan = new Loan();
 
@@ -277,8 +239,8 @@ namespace CommunityLibrary.Controllers
             LoanRating loanRating = new LoanRating();
 
             //find current user
-            string user = User.FindFirst(ClaimTypes.NameIdentifier).Value; 
-            User currentUser = _libraryDB.Users.First(x => x.UserId == user);
+            
+            User currentUser = CurrentUser();
             //assign current user to LoanRating object
             loanRating.currentUser = currentUser;
 
@@ -300,9 +262,7 @@ namespace CommunityLibrary.Controllers
         [HttpPost]
         public IActionResult RateLoan(int loanId, int Rating)
         {
-
-            string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            User currentUser = _libraryDB.Users.First(x => x.UserId == user);
+            User currentUser = CurrentUser();
             User userRecievingRating = new User();
 
             Loan loanToReview = _libraryDB.Loans.Find(loanId);
@@ -365,7 +325,7 @@ namespace CommunityLibrary.Controllers
         {
             // Grab users lat and lng
             string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            User currentUser = _libraryDB.Users.First(x => x.UserId == user);
+            User currentUser = CurrentUser();
             TempData["lat"] = currentUser.Latitude;
             TempData["lng"] = currentUser.Longitude;
 
@@ -380,8 +340,7 @@ namespace CommunityLibrary.Controllers
         }
         public IActionResult ViewApiInfoForSingleBook(string bookId)
         {
-            string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            User currentUser = _libraryDB.Users.First(x => x.UserId == user);
+            User currentUser = CurrentUser();
 
             BookInfo apiBook = _libraryDAL.GetBookInfo(bookId);
             List<Author> authors = new List<Author>();
@@ -411,8 +370,7 @@ namespace CommunityLibrary.Controllers
 
         public IActionResult AddBookToLibrary(string bookId)
         {
-            string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            User currentUser = _libraryDB.Users.First(x => x.UserId == user);
+            User currentUser = CurrentUser();
             List<Book> personalLibrary = _libraryDB.Books.Where(x => x.BookOwner == currentUser.Id).ToList();
             if (personalLibrary.Where(x => x.TitleIdApi == bookId).Count() > 0)
             {
@@ -436,10 +394,8 @@ namespace CommunityLibrary.Controllers
 
         public IActionResult MyLibrary()
         {
-
             //find current user
-            string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            User currentUser = _libraryDB.Users.First(x => x.UserId == user);
+            User currentUser = CurrentUser();
 
             //Find all books where the owner is the current user and the book is active
             List<Book> dbPersonalLibrary = _libraryDB.Books.Where(x => x.BookOwner == currentUser.Id && x.IsActive== true).ToList();
@@ -512,8 +468,7 @@ namespace CommunityLibrary.Controllers
 
         public IActionResult ReviewBook(string bookId)
         {
-            string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            User currentUser = _libraryDB.Users.First(x => x.UserId == user);
+            User currentUser = CurrentUser();
             List<BookReview> myBookReviews = _libraryDB.BookReviews.Where(x => x.UserId == currentUser.Id).ToList();
 
             BookInfo apiBook = _libraryDAL.GetBookInfo(bookId);
@@ -531,8 +486,7 @@ namespace CommunityLibrary.Controllers
         [HttpPost]
         public IActionResult ReviewBook(BookReview bookReview)
         {
-            string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            User currentUser = _libraryDB.Users.First(x => x.UserId == user);
+            User currentUser = CurrentUser();
             bookReview.UserId = currentUser.Id;
             if (ModelState.IsValid)
             {
@@ -555,8 +509,7 @@ namespace CommunityLibrary.Controllers
         [HttpPost]
         public IActionResult UpdateBookReview(BookReview bookReview)
         {
-            string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            User currentUser = _libraryDB.Users.First(x => x.UserId == user);
+            User currentUser = CurrentUser();
             List<BookReview> myBookReviews = _libraryDB.BookReviews.Where(x => x.UserId == currentUser.Id).ToList();
             BookReview reviewToUpdate = myBookReviews.Where(x => x.TitleIdApi == bookReview.TitleIdApi).First();
 
@@ -578,8 +531,7 @@ namespace CommunityLibrary.Controllers
 
         public IActionResult MyBookReviews()
         {
-            string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            User currentUser = _libraryDB.Users.First(x => x.UserId == user);
+            User currentUser = CurrentUser();
             
             List<BookReview> myBookReviews = _libraryDB.BookReviews.Where(x => x.UserId == currentUser.Id).ToList();
             List<Review> reviews = new List<Review>();
@@ -605,8 +557,7 @@ namespace CommunityLibrary.Controllers
         [HttpPost]
         public IActionResult SearchResultsTitles(string query)
         {
-            string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            User currentUser = _libraryDB.Users.First(x => x.UserId == user);
+            User currentUser = CurrentUser();
 
             List<Doc> results = new List<Doc>();
             results = _libraryDAL.GetSearchTitles(query);
@@ -618,7 +569,7 @@ namespace CommunityLibrary.Controllers
         public IActionResult LocalLibraries(int? id)
         {
             string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            User currentUser = _libraryDB.Users.First(x => x.UserId == user);
+            User currentUser = CurrentUser();
 
             // get local users
             List<User> notUser = _libraryDB.Users.Where(x => x.UserId != user).ToList();
@@ -750,6 +701,38 @@ namespace CommunityLibrary.Controllers
             {
                 return false;
             }
+        }
+
+        public User CurrentUser()
+        {
+            string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
+            try
+            {
+
+                //If they're logged in- find that identity userId within the user table 
+                User currentUser = _libraryDB.Users.Where(x => x.UserId == user).First();
+                return currentUser;
+            }
+            catch (Exception)
+            {
+                //if the identity userId isn't in the user table--make a new user
+                //doing this here because all users are routed to the index page after logging in
+                User newCurrentUser = new User();
+                newCurrentUser.UserId = user;
+                newCurrentUser.CumulatvieRating = 5;
+                newCurrentUser.UserName = _libraryDB.AspNetUsers.Find(user).UserName;
+
+                //Maps doesn't work if ALL users in the database don't have a location,
+                //automatically setting all users to Detroit- they can change in user profile
+                newCurrentUser.UserLocation = "Detroit";
+                newCurrentUser.Latitude = "42.33143";
+                newCurrentUser.Longitude = "-83.04575";
+                _libraryDB.Users.Add(newCurrentUser);
+                _libraryDB.SaveChanges();
+                return newCurrentUser;
+
+            }
+
         }
     }
 }
