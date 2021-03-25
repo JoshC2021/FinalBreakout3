@@ -9,7 +9,7 @@
                         <img class="img-fluid d-block profile-image" src="@Model.BookBorrower.ProfileImage">
                         <div class="row">
                             <div class="col-md-12">
-                                <p class="text-center my-2 mx-auto"><a href="#">@Model.BookBorrower.UserName</a></p>
+                                <p class="text-center my-2 mx-auto"><a asp-controller="Home" asp-action="LocalLibraries">@Model.BookBorrower.UserName</a></p>
                                 <div class="text-center my-2 mx-auto">
                                     <partial name="_StarRatingPartial" model="@Model.BookBorrowerRating" />
                                 </div>
