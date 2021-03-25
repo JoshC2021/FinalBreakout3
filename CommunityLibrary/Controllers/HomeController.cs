@@ -185,7 +185,7 @@ namespace CommunityLibrary.Controllers
             Book loanedBook = _libraryDB.Books.First(x => x.Id == oldDetails.BookId);
 
             // check to see if user has loaned this book out already
-            if (loanedBook.AvailibilityStatus == false && approvalUpdate.LoanStatus)
+            if (loanedBook.AvailibilityStatus == false && newDetails.LoanStatus)
             {
                 // unable to approve loan request
                 TempData["Loaned"] = "Could not complete request: You have already loaned out this book";
