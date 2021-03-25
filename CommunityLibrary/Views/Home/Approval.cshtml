@@ -1,52 +1,198 @@
-﻿@model LoanContainer
-@{
-    int userId = int.Parse(TempData["CurrentUser"].ToString());
-}
+﻿@model CommunityLibrary.ViewModels.ApprovalViewModel
 
-<div class="container py-4">
-    <h2>Book Title: @Model.BookTitle</h2>
-    <h2>Requester: @Model.LoanerName</h2>
-    <img src="@Model.ProfileImage" alt="No Profile Image" class="sideBySide" height="100px" width="auto" />
-    <h2>Rating: @Model.LoanInfo.RecipientRating</h2>
+<div class="pt-5" style="">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-md-12" style="">
+                <div class="row bg-light p-3 my-3">
+                    <div class="col-md-2">
+                        <img class="img-fluid d-block profile-image" src="@Model.BookBorrower.ProfileImage">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <p class="text-center my-2 mx-auto"><a asp-controller="Home" asp-action="LocalLibraries">@Model.BookBorrower.UserName</a></p>
+                                <div class="text-center my-2 mx-auto">
+                                    <partial name="_StarRatingPartial" model="@Model.BookBorrowerRating" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-10">
+                        <div class="row mb-2">
+                            <div class="col-md-12">
+                                <h2 class="">Book Request:&nbsp;<small class="text-muted">@Model.BookTitle</small></h2>
+                                <p class="">
+                                    <b>Requested by</b>: @Model.BookBorrower.UserName
+                                    <br />
+                                    <b>Owner</b>: @Model.BookOwner.UserName
+                                    <br />
+                                    @if (Model.CurrentState != CommunityLibrary.ViewModels.CurrentState.Pending)
+                                    {
+                                        <b>Due Date</b><text>: </text> @Model.Loan.DueDate.Value.ToShortDateString()
+                                        <br />
+                                    }
+                                    <b>Status</b>:
+                                    @if (Model.CurrentState == CommunityLibrary.ViewModels.CurrentState.Pending && Model.CurrentUser == Model.BookOwner)
+                                    {
+                                        <span class="text-danger"><strong>Pending. Please approve or decline this request.</strong></span>
+                                    }
+                                    else if (Model.CurrentState == CommunityLibrary.ViewModels.CurrentState.CheckedOut)
+                                    {
+                                        <text>Checked Out</text>
+                                    }
+                                    else
+                                    {
+                                        <text>@Model.CurrentState.ToString()</text>
+                                    }
+                                </p>
+                                </p>
+                                <hr>
+                            </div>
+                        </div>
+                        <div class="row py-0 pt-3">
+                            <div class="col-md-12 chat-bubble-conatiner">
+                                @if (Model.Loan.LoanerNote is not null)
+                                {
+                                    <div class="chat-bubble-container-them">
+                                        <p class="bubble">@Model.Loan.LoanerNote<br /><span class="text-muted">- @Model.BookBorrower.UserName</span></p>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <p class="text-muted text-center">@Model.BookBorrower.UserName did not leave a message.</p>
+                                }
+                            </div>
+                        </div>
+                        <div class="row py-0 pt-3">
+                            <div class="col-md-12">
+                                @if (Model.Loan.OwnerNote is not null)
+                                {
+                                    <div class="chat-bubble-container-you">
+                                        <p class="bubble">@Model.Loan.OwnerNote<br /><span class="text-muted"> - @Model.BookOwner.UserName</span></p>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <p class="text-muted text-center">@Model.BookOwner.UserName did not leave a message.</p>
+                                }
+                            </div>
+                        </div>
+                        <hr />
 
-    <form asp-action="Approval" asp-controller="Home">
-        <label>Loan Id: </label>
-        <input type="text" name="Id" value="@Model.LoanInfo.Id" readonly />
-        <br />
-        <label>Owner Comments: </label>
-        @if (Model.LoanInfo.IsOwner(userId))
-        {
-            <input type="text" name="OwnerNote" value="@Model.LoanInfo.OwnerNote" />
-            <br />
-            <label>Loaner Comments: </label>
-            <input type="text" name="LoanerNote" value="@Model.LoanInfo.LoanerNote" readonly />
-        }
-        else
-        {
-            <input type="text" name="OwnerNote" value="@Model.LoanInfo.OwnerNote" readonly />
-            <br />
-            <label>Loaner Comments: </label>
-            <input type="text" name="LoanerNote" value="@Model.LoanInfo.LoanerNote" />
-        }
-        <br />
-        <br />
-        @if (Model.LoanInfo.IsDateEmpty() && Model.LoanInfo.IsOwner(userId))
-        {
-            <label>Approve Rental: </label>
-            <label>True:</label><input type="radio" name="LoanStatus" value="true" required />
-            <label>False:</label><input type="radio" name="LoanStatus" value="false" required />
-        }
-        else if (Model.LoanInfo.IsOwner(userId))
-        {
-            <label>End Loan: </label>
-            <label>Continue:</label><input type="radio" name="LoanStatus" value="true" required />
-            <label>End:</label><input type="radio" name="LoanStatus" value="false" required />
-        }
-        else
-        {
-            <input type="hidden" name="LoanStatus" value="@Model.LoanInfo.LoanStatus.ToString()" />
-        }
-        <br />
-        <input type="submit" value="Save Changes" />
-    </form>
+                        @{
+                            // If the book OWNER is view the page, we want to display the correct forms depending on the loan state
+                        }
+
+                        @if (Model.CurrentUser == Model.BookOwner)
+                        {
+                            if (Model.CurrentState == CommunityLibrary.ViewModels.CurrentState.Pending)
+                            {
+                                <form asp-action="Approval" asp-controller="Home" asp-route-Id="@Model.Loan.Id" asp-route-LoanerNote="@Model.Loan.LoanerNote">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+
+                                                @if (Model.Loan.OwnerNote is null)
+                                                {
+                                                    <label>Add a message (optional, 140 characters max)</label>
+                                                }
+                                                else
+                                                {
+                                                    <label>You may edit your message above (optional, 140 characters max)</label>
+                                                }
+                                                <textarea class="form-control" placeholder="Write your message..." maxlength="139" name="OwnerNote"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row my-2">
+                                        <div class="col-md-6">
+                                            <button type="submit" class="btn btn-primary w-100" name="LoanStatus" value="true"><i class="fa fa-fw fa-check"></i>Approve</button>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <button type="submit" class="btn btn-outline-primary w-100" name="LoanStatus" value="false"><i class="fa fa-fw fa-check"></i>Decline</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            }
+                            else if (Model.CurrentState == CommunityLibrary.ViewModels.CurrentState.CheckedOut)
+                            {
+                                <form asp-controller="Home" asp-route-Id="@Model.Loan.Id" asp-route-LoanerNote="@Model.Loan.LoanerNote">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                @if (Model.Loan.OwnerNote is null)
+                                                {
+                                                    <label>Add a message (optional, 140 characters max)</label>
+                                                }
+                                                else
+                                                {
+                                                    <label>You may edit your message above (optional, 140 characters max)</label>
+                                                }
+                                                <textarea class="form-control" placeholder="Write your message..." maxlength="139" name="OwnerNote"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-3">
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                <label>Has @Model.BookBorrower.UserName returned this book?</label>
+                                                <select name="LoanStatus" class="form-control" required>
+                                                    <option value="" selected>Choose...</option>
+                                                    <option value="true">No, the book has not been returned</option>
+                                                    <option value="false">Yes, the book has been returned</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row my-2">
+                                        <div class="col-md-12">
+                                            <button type="submit" class="btn btn-primary w-100">Save</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            }
+                            else if (Model.CurrentState == CommunityLibrary.ViewModels.CurrentState.Returned)
+                            {
+                                <p class="text-muted text-center">This request has been completed and is now archived. Messages are now closed. Thank you for sharing your book!</p>
+                            }
+                        }
+
+                        // If the book BORROWER is logged in, then display the correct forms depending on the loan state
+
+                        else if (Model.CurrentUser == Model.BookBorrower)
+                        {
+                            if (Model.CurrentState == CommunityLibrary.ViewModels.CurrentState.Pending || Model.CurrentState == CommunityLibrary.ViewModels.CurrentState.CheckedOut)
+                            {
+                                <form asp-action="Approval" asp-controller="Home" asp-route-Id="@Model.Loan.Id" asp-route-OwnerNote="@Model.Loan.OwnerNote" asp-route-LoanStatus="@Model.Loan.LoanStatus">
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <div class="form-group">
+                                                @if (Model.Loan.LoanerNote is null)
+                                                {
+                                                    <label>Add a message (optional, 140 characters max)</label>
+                                                }
+                                                else
+                                                {
+                                                    <label>You may edit your message above (optional, 140 characters max)</label>
+                                                }
+                                                <textarea class="form-control" placeholder="Write your message..." maxlength="139" name="LoanerNote"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row my-2">
+                                        <div class="col-md-12">
+                                            <button type="submit" class="btn btn-primary w-100">Save</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            }
+                            else if (Model.CurrentState == CommunityLibrary.ViewModels.CurrentState.Returned)
+                            {
+                                <p class="text-muted text-center">This request has been completed and is now archived. Messages are now closed. Thank you for returning the book!</p>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
