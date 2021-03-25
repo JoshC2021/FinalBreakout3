@@ -193,9 +193,17 @@ namespace CommunityLibrary.Controllers
             }
 
             // update status and comments
+            if (newDetails.OwnerNote is not null)
+            {
+                oldDetails.OwnerNote = newDetails.OwnerNote;
+            }
+            if (newDetails.LoanerNote is not null)
+            {
+                oldDetails.LoanerNote = newDetails.LoanerNote;
+
+            }
             oldDetails.LoanStatus = newDetails.LoanStatus;
-            oldDetails.LoanerNote = newDetails.LoanerNote;
-            oldDetails.OwnerNote = newDetails.OwnerNote;
+            
 
             // newly approved rentals tasks
             if(oldDetails.LoanStatus && oldDetails.IsDateEmpty() && oldDetails.BookOwner == currentUser.Id)
