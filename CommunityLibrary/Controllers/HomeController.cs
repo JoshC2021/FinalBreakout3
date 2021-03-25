@@ -191,6 +191,7 @@ namespace CommunityLibrary.Controllers
             approvalViewModel.BookOwner = _libraryDB.Users.First(x => x.Id == approvalViewModel.Loan.BookOwner);
             approvalViewModel.Book = _libraryDB.Books.First(x => x.Id == approvalViewModel.Loan.BookId);
             approvalViewModel.BookTitle = _libraryDAL.GetBookInfo(approvalViewModel.Book.TitleIdApi).title;
+            approvalViewModel.BookBorrowerRating = Convert.ToInt32(approvalViewModel.BookBorrower.CumulatvieRating);
 
             // If a date is empty, that is how we siganal that a loan is PENDING (book owner has yet to approve/decline)
             if (approvalViewModel.Loan.IsDateEmpty() && approvalViewModel.Loan.LoanStatus == true)

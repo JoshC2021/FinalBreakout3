@@ -1,89 +1,112 @@
 ﻿@model CommunityLibrary.ViewModels.ApprovalViewModel
 
-<p>@Model.BookOwner.UserName owns @Model.BookTitle , @Model.CurrentState</p>
-
-@if (Model.CurrentUser == Model.BookOwner)
-{
-    if (Model.CurrentState == CommunityLibrary.ViewModels.CurrentState.Pending)
-    {
-        <p>owner logged in, pending</p>
-    }
-    else if (Model.CurrentState == CommunityLibrary.ViewModels.CurrentState.CheckedOut)
-    {
-        <p>owner logged in, checked out</p>
-    }
-    else if (Model.CurrentState == CommunityLibrary.ViewModels.CurrentState.Returned)
-    {
-        <p>owner logged in, returned</p>
-    }
-}
-else if (Model.CurrentUser == Model.BookBorrower)
-{
-    if (Model.CurrentState == CommunityLibrary.ViewModels.CurrentState.Pending)
-    {
-        <p>borrower logged in, pending</p>
-    }
-    else if (Model.CurrentState == CommunityLibrary.ViewModels.CurrentState.CheckedOut)
-    {
-        <p>borrower logged in, checked out</p>
-    }
-    else if (Model.CurrentState == CommunityLibrary.ViewModels.CurrentState.Returned)
-    {
-        <p>borrower logged in, returned</p>
-    }
-}
-
-
-@*
-
-    <div class="pt-5" style="">
-        <div class="container">
-            <div class="row">
-                <div class="col-12 col-md-12" style="">
-                    <h2>Transactions<br></h2>
-                    <hr>
-                    <div class="row bg-light p-3 my-3">
-                        <div class="col-md-2">
-                            <img class="img-fluid d-block" src="@Model.ProfileImage">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <p class="text-center my-2 mx-auto"><a href="#">@Model.LoanerName</a></p>
-                                    <div class="text-center my-2 mx-auto">
-                                        <partial name="_StarRatingPartial" model="requesterRating" />
-                                    </div>
+<div class="pt-5" style="">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-md-12" style="">
+                <h2>Transactions<br></h2>
+                <hr>
+                <div class="row bg-light p-3 my-3">
+                    <div class="col-md-2">
+                        <img class="img-fluid d-block" src="@Model.CurrentUser.ProfileImage">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <p class="text-center my-2 mx-auto"><a href="#">@Model.BookBorrower.UserName</a></p>
+                                <div class="text-center my-2 mx-auto">
+                                    <partial name="_StarRatingPartial" model="@Model.BookBorrowerRating" />
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-10">
-                            <div class="row mb-2">
-                                <div class="col-md-12">
-                                    <h2 class="">Book Request:&nbsp;<small class="text-muted">@Model.BookTitle</small></h2>
-                                    <p class="">
-                                        <b>Requested by</b>: @Model.LoanerName
-                                        <br>
-                                        <b>Owner</b>: You
-                                        <br>
-                                        <b>Status</b>: <span class="text-danger"><strong>Pending. Please approve or decline this request.</strong></span>
-                                    </p>
-                                    </p>
-                                    <hr>
-                                </div>
+                    </div>
+                    <div class="col-md-10">
+                        <div class="row mb-2">
+                            <div class="col-md-12">
+                                <h2 class="">Book Request:&nbsp;<small class="text-muted">@Model.BookTitle</small></h2>
+                                <p class="">
+                                    <b>Requested by</b>: @Model.BookBorrower.UserName
+                                    <br />
+                                    <b>Owner</b>: @Model.BookOwner.UserName
+                                    <br />
+                                    <b>Status</b>: <span class="text-danger"><strong>Pending. FAKE. Please approve or decline this request.</strong></span>
+                                    <br />
+                                    <b>Status</b>: @Model.CurrentState.ToString()
+                                </p>
+                                </p>
+                                <hr>
                             </div>
-                            <div class="row py-0 pt-3">
-                                <div class="col-md-12 chat-bubble-conatiner">
+                        </div>
+                        <div class="row py-0 pt-3">
+                            <div class="col-md-12 chat-bubble-conatiner">
+                                @if (Model.Loan.LoanerNote is not null)
+                                {
                                     <div class="chat-bubble-container-them">
-                                        <p class="bubble">@Model.LoanInfo.LoanerNote<br />- @Model.LoanerName</p>
+                                        <p class="bubble">@Model.Loan.OwnerNote<br />- @Model.BookBorrower.UserName</p>
                                     </div>
-                                </div>
+                                }
                             </div>
-                            <div class="row py-0 pt-3">
-                                <div class="col-md-12">
+                        </div>
+                        <div class="row py-0 pt-3">
+                            <div class="col-md-12">
+                                @if (Model.Loan.OwnerNote is not null)
+                                {
                                     <div class="chat-bubble-container-you">
-                                        <p class="bubble">@Model.LoanInfo.OwnerNote<br />- Book Owner</p>
+                                        <p class="bubble">@Model.Loan.OwnerNote<br />- @Model.BookOwner.UserName</p>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        @if (Model.CurrentUser == Model.BookOwner)
+                        {
+                            if (Model.CurrentState == CommunityLibrary.ViewModels.CurrentState.Pending)
+                            {
+                                <div class="row mt-3">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            @if (Model.Loan.OwnerNote is null)
+                                            {
+                                                <label>Add a message (optional, 140 characters max)</label>
+                                                <input type="text" class="form-control" placeholder="Write your message...">
+                                            }
+                                            else
+                                            {
+                                                <label>You may edit your message above (optional, 140 characters max)</label>
+                                                <input type="text" class="form-control" placeholder="Write your message...">
+                                            }
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="row mt-3">
+                                <div class="row my-2">
+                                    <div class="col-md-6"><a class="btn btn-primary w-100" href="#" contenteditable="true"><i class="fa fa-fw fa-check"></i>Approve</a></div>
+                                    <div class="col-md-6"><a class="btn w-100 btn-outline-primary" href="#"><i class="fa fa-fw fa-times-circle"></i>&nbsp;Decline</a></div>
+                                </div>
+                            }
+                            else if (Model.CurrentState == CommunityLibrary.ViewModels.CurrentState.CheckedOut)
+                            {
+                                <p>owner logged in, checked out</p>
+                            }
+                            else if (Model.CurrentState == CommunityLibrary.ViewModels.CurrentState.Returned)
+                            {
+                                <p>owner logged in, returned</p>
+                            }
+                        }
+                        else if (Model.CurrentUser == Model.BookBorrower)
+                        {
+                            if (Model.CurrentState == CommunityLibrary.ViewModels.CurrentState.Pending)
+                            {
+                                <p>borrower logged in, pending</p>
+                            }
+                            else if (Model.CurrentState == CommunityLibrary.ViewModels.CurrentState.CheckedOut)
+                            {
+                                <p>borrower logged in, checked out</p>
+                            }
+                            else if (Model.CurrentState == CommunityLibrary.ViewModels.CurrentState.Returned)
+                            {
+                                <p>borrower logged in, returned</p>
+                            }
+                        }
+
+                        @*                        <div class="row mt-3">
                                 <div class="col-md-12">
                                     <div class="form-group"> <label>Edit your message above (optional, 140 characters max)</label> <input type="text" class="form-control" placeholder="Write your message..."> </div>
                                 </div>
@@ -91,10 +114,11 @@ else if (Model.CurrentUser == Model.BookBorrower)
                             <div class="row my-2">
                                 <div class="col-md-6"><a class="btn btn-primary w-100" href="#" contenteditable="true"><i class="fa fa-fw fa-check"></i>Approve</a></div>
                                 <div class="col-md-6"><a class="btn w-100 btn-outline-primary" href="#"><i class="fa fa-fw fa-times-circle"></i>&nbsp;Decline</a></div>
-                            </div>
-                        </div>
+                            </div>*@
+
                     </div>
                 </div>
             </div>
         </div>
-    </div>*@
+    </div>
+</div>

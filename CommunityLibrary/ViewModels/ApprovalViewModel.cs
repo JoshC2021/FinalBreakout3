@@ -14,6 +14,7 @@ namespace CommunityLibrary.ViewModels
         public Loan Loan { get; set; }
         public Book Book { get; set; }
         public string BookTitle { get; set; }
+        public int BookBorrowerRating { get; set; }
         public CurrentState CurrentState { get; set; }
     }
     public enum CurrentState { Pending, CheckedOut, Returned }
