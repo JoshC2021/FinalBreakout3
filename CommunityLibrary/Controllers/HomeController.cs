@@ -72,7 +72,8 @@ namespace CommunityLibrary.Controllers
         [HttpPost]
         public IActionResult UpdateProfile(User updated)
         {
-
+            try
+            {
             if (ModelState.IsValid)
             {
 
@@ -94,6 +95,14 @@ namespace CommunityLibrary.Controllers
                 _libraryDB.SaveChanges();
             }
             return RedirectToAction("Profile");
+
+
+            }
+            catch (Exception)
+            {
+                TempData["errorMessage"] = "Double-Check your image...that url isn't quite right";
+                return RedirectToAction("ErrorMessage");
+            }
         }
 
         public IActionResult Transactions()
