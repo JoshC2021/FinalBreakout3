@@ -2,6 +2,7 @@
 @{
     List<LibraryBook> updates = Model;
     int localId = 0;
+    int bookId = 0;
     List<int> uniqueIds = new List<int>();
     bool IsMultipleLibraries = (TempData["OneLibrary"] is not null) ? false : true;
 
@@ -19,8 +20,14 @@
         var rating = Convert.ToInt32(TempData["Rating"]);
         <partial name="_StarRatingPartial" model="rating" />
     }
+
+    @if (Model.Count < 1)
+    {
+        <h1>I'm sorry, there are no books in your local libraries.</h1>
+    }
     <form asp-action="LocalLibraries">
         <select name="id">
+
             @foreach (LibraryBook lb in Model)
             {
                 if (!IsMultipleLibraries)
@@ -41,11 +48,16 @@
         </select>
         <input type="submit" value="Swap Library" />
     </form>
+
+    <br />
+
+    <input type="text" id="titleSearch" onkeyup="myFunction()" placeholder="Search for books by Title...">
+
     <div class="stacked">
         @foreach (LibraryBook book in updates)
         {
 
-            <div class="box">
+            <div class="box" id=bookInfo+@bookId>
 
                 <div>
                     @{int coverId = 0;
@@ -65,7 +77,7 @@
                 </div>
                 <div class="box2">
                     <div class="center">
-                        <h1>@book.ApiBook.title</h1>
+                        <h1 id=title+@bookId>@book.ApiBook.title</h1>
 
 
                         <h6>Author(s)</h6>
@@ -87,7 +99,7 @@
                         {
                             <p>@book.BookHolder currently has checked this book out.</p>
                         }
-                        else
+                        else 
                         {
                             <p>This book is available. Submit a request and @book.BookOwner will get back to you.</p>
                         }
@@ -112,6 +124,8 @@
                     </div>
                 </div>
             </div>
+
+            bookId++;
         }
     </div>
 </div>
@@ -164,3 +178,26 @@
             background-color: rgba(242,107,58, .2);
         }
 </style>
+
+<script>
+    function myFunction() {
+        // Declare variables
+        var input, filter, container, title, i, txtValue,containerId, titleId;
+        input = document.getElementById('titleSearch');
+        filter = input.value.toUpperCase();
+        var total = @Model.Count();
+        // Loop through all list items, and hide those who don't match the search query
+        for (i = 0; i <= total; i++) {
+            containerId = "bookInfo+" + i;
+            titleId = "title+" + i;
+            container = document.getElementById(containerId);
+            title = document.getElementById(titleId);
+            txtValue = title.textContent || title.innerText;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                container.style.display = "";
+            } else {
+                container.style.display = "none";
+            }
+        }
+    }
+</script>

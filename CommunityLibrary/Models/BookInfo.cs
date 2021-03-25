@@ -24,7 +24,6 @@ namespace CommunityLibrary.Models
         public string[] subject_people { get; set; }
         public string key { get; set; }
         public List<Author> authors { get; set; }
-        public Excerpt[] excerpts { get; set; }
         public string[] subject_times { get; set; }
         public Type type { get; set; }
         public int latest_revision { get; set; }
@@ -100,14 +99,6 @@ namespace CommunityLibrary.Models
     public class Type2
     {
         public string key { get; set; }
-    }
-
-    public class Excerpt
-    {
-        public string pages { get; set; }
-        public string excerpt { get; set; }
-        public Author2 author { get; set; }
-        public string comment { get; set; }
     }
 
     public class Author2

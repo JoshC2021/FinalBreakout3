@@ -4,7 +4,15 @@
     <div class="container">
         <div class="row">
             <div class="col-md-12 text-center">
-                <h1>Results for Search Query<br></h1>
+                @if (Model.Count > 0)
+                {
+                    <h1>Results for '@TempData["query"]'<br></h1>
+                }
+                else
+                {
+                    <h1>I'm Sorry, there were no results for: '@TempData["query"]'<br></h1>
+                }
+
             </div>
         </div>
     </div>

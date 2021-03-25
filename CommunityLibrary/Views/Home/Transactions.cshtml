@@ -3,9 +3,15 @@
 @inject UserManager<IdentityUser> UserManager
 @{
     int userId = int.Parse(TempData["CurrentUser"].ToString());
+    var pending = TempData["Pending"] ?? string.Empty;
+    var loaned = TempData["Loaned"] ?? string.Empty;
 }
 
 <div class="container py-4">
+    @if(Model.Count<1)
+    {
+    <h2>It looks like you haven't borrowed or loaned any books yet...</h2>
+    }
     <h2>Your Books</h2>
     @foreach (LoanRating l in Model.Where(x => x.loan.BookOwner == userId && x.loan.LoanStatus))
     {
@@ -136,3 +142,16 @@
 
     }
 </div>
+
+<script type="text/javascript">
+    var message = '@pending';
+    if (message)
+    {
+        alert(message);
+    }
+    message = '@loaned';
+    if (message) {
+        alert(message);
+    }
+
+</script>
