@@ -106,19 +106,12 @@
 
                     </div>
                     <div class="right">
-                        <a asp-action="ViewApiInfoForSingleBook" asp-route-bookId="@book.DbBook.TitleIdApi">
-                            <button class="right">
-                                View Book Description
-                            </button>
-                        </a>
+                        <a asp-action="ViewApiInfoForSingleBook" asp-route-bookId="@book.DbBook.TitleIdApi" asp-controller="Home" class="btn btn-outline-primary">View Book Description</a>
                         <br />
                         @if (book.DbBook.AvailibilityStatus == true)
                         {
-                            <a asp-action="RequestLoan" asp-route-id="@book.DbBook.Id">
-                                <button>
-                                    Request Book
-                                </button>
-                            </a>
+
+                            <a asp-action="RequestLoan" asp-route-id="@book.DbBook.Id" asp-controller="Home" class="btn btn-outline-primary">Request Book</a>
                         }
 
                     </div>
@@ -164,19 +157,6 @@
         font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
     }
 
-    button {
-        margin: 10px;
-        padding: 10px 20px;
-        border-radius: 5px;
-        border: none;
-        background-color: rgb(249,139,58);
-        color: rgb(17,39,80);
-    }
-
-        button:hover {
-            color: rgb(109,178,164);
-            background-color: rgba(242,107,58, .2);
-        }
 </style>
 
 <script>

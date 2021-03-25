@@ -403,6 +403,13 @@ namespace CommunityLibrary.Controllers
                 apiBook.authors = authors;
             }
 
+                List<BookReview> reviewForThisBook = _libraryDB.BookReviews.Where(x => x.TitleIdApi == apiBook.key).ToList();
+
+                if (reviewForThisBook.Count>0)
+                {
+                    TempData["reviewsExist"] = "true";
+                }
+
             return View(apiBook);
 
 
@@ -594,6 +601,27 @@ namespace CommunityLibrary.Controllers
                 reviews.Add(review1);
             }
 
+
+            return View(reviews);
+        }
+        public IActionResult ReviewsForThisBook(string bookId)
+        {
+            User currentUser = CurrentUser();
+            BookInfo apiBook1 = _libraryDAL.GetBookInfo(bookId);
+            List<BookReview> reviewsForthisbook = _libraryDB.BookReviews.Where(x => x.TitleIdApi==apiBook1.key).ToList();
+            List<Review> reviews = new List<Review>();
+
+            foreach (BookReview review in reviewsForthisbook)
+            {
+                BookInfo apiBook = _libraryDAL.GetBookInfo(review.TitleIdApi);
+                User reviewer = _libraryDB.Users.Find(review.UserId);
+                Review review1 = new Review();
+                review1.review = review;
+                review1.ApiBook = apiBook;
+                review1.reviewer = reviewer;
+                reviews.Add(review1);
+            }
+           
 
             return View(reviews);
         }

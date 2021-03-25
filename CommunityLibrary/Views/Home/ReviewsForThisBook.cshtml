@@ -1,0 +1,99 @@
+﻿@model List<Review>
+
+
+<div class="container py-4">
+    <h1>Reviews for @Model[0].ApiBook.title</h1>
+    @{ int coverId = 0;
+        @if (Model[0].ApiBook.covers is not null)
+        {
+            coverId = Model[0].ApiBook.covers.Where(x => x > 0).First();
+        }
+        string imgSrc = $"http://covers.openlibrary.org/b/id/{coverId}.jpg";}
+    @if (coverId != 0)
+    {
+        <img src=" @imgSrc" alt="@Model[0].ApiBook.title" width="100" />
+    }
+    else
+    {
+        <img width="100" src="https://via.placeholder.com/500x750?text=No+Cover+Found" alt="No book cover image available for @Model[0].ApiBook.title">
+    }
+    @if (Model.Count == 0)
+    {
+        <h2>This book hasn't been reviewed yet!</h2>
+
+    }
+    else
+    {
+        <div class="stacked">
+            @foreach (Review review in Model)
+            {
+                <div class="box">
+                    <div>
+                        <img src=" @review.reviewer.ProfileImage" alt="@review.reviewer.UserName" width="100" />
+                    </div>
+                    <div class="box2">
+                        <div class="center">
+                            <h1>Reviewed by: @review.reviewer.UserName</h1>
+                            <p>@review.review.Rating/5 stars</p>
+                            <p>@review.review.Review</p>
+
+
+
+                        </div>
+                        <div class="right">
+
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+<style>
+    body {
+        background-color: black;
+        color: white;
+    }
+
+    .pb-3 {
+    }
+
+    .box {
+        background-color: whitesmoke;
+        padding: 25px;
+        border-radius: 25px;
+        display: flex;
+        margin: 25px;
+    }
+
+    .box2 {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        margin-left: 20px;
+    }
+
+    .right {
+        float: right;
+    }
+
+    .center {
+        float: left;
+        color: black;
+        font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    }
+
+    button {
+        margin: 10px;
+        padding: 10px 20px;
+        border-radius: 5px;
+        border: none;
+        background-color: rgb(249,139,58);
+        color: rgb(17,39,80);
+    }
+
+        button:hover {
+            color: rgb(109,178,164);
+            background-color: rgba(242,107,58, .2);
+        }
+</style>
