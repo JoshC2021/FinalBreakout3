@@ -178,36 +178,51 @@ namespace CommunityLibrary.Controllers
             // Populate container with necessary info then send to view
             string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             User currentUser = _libraryDB.Users.First(x => x.UserId == user);
-            TempData["CurrentUser"] = currentUser.Id;
-            TempData["RequesterRating"] = Convert.ToInt32(currentUser.CumulatvieRating);
 
-            Loan currentLoan = _libraryDB.Loans.First(x => x.Id == loanId);
-            LoanContainer loanDetails = new LoanContainer();
-            loanDetails.LoanInfo = currentLoan;
+            // There are two key things the view needs to know:
+            // 1. who is viewing the page? owner or borrower (figured out above, set below)
+            // 2. what is the state of the loan? pending, checked out, or returned? (handled below)
 
-            User renterInfo = _libraryDB.Users.First(x => x.Id == currentLoan.BookLoaner);
-            loanDetails.ProfileImage = renterInfo.ProfileImage;
-            loanDetails.LoanerName = renterInfo.UserName;
+            ApprovalViewModel approvalViewModel = new ApprovalViewModel();
 
-            Book loanedBook = _libraryDB.Books.First(x => x.Id == currentLoan.BookId);
-            loanDetails.BookTitle = _libraryDAL.GetBookInfo(loanedBook.TitleIdApi).title;
+            approvalViewModel.CurrentUser = currentUser;
+            approvalViewModel.Loan = _libraryDB.Loans.First(x => x.Id == loanId);
+            approvalViewModel.BookBorrower = _libraryDB.Users.First(x => x.Id == approvalViewModel.Loan.BookLoaner);
+            approvalViewModel.BookOwner = _libraryDB.Users.First(x => x.Id == approvalViewModel.Loan.BookOwner);
+            approvalViewModel.Book = _libraryDB.Books.First(x => x.Id == approvalViewModel.Loan.BookId);
+            approvalViewModel.BookTitle = _libraryDAL.GetBookInfo(approvalViewModel.Book.TitleIdApi).title;
 
-            return View(loanDetails);
+            // If a date is empty, that is how we siganal that a loan is PENDING (book owner has yet to approve/decline)
+            if (approvalViewModel.Loan.IsDateEmpty() && approvalViewModel.Loan.LoanStatus == true)
+            {
+                approvalViewModel.CurrentState = CurrentState.Pending;
+            }
+            // The date is not empty, which is how we signal a due date was created, thus the book must have been checked out 
+            else if (approvalViewModel.Loan.LoanStatus == true)
+            {
+                approvalViewModel.CurrentState = CurrentState.CheckedOut;
+            }
+            else
+            {
+                approvalViewModel.CurrentState = CurrentState.Returned;
+            }
+
+            return View(approvalViewModel);
         }
 
         [HttpPost]
-        public IActionResult Approval(Loan approvalUpdate)
+        public IActionResult Approval(Loan newDetails)
         {
             string user = User.FindFirst(ClaimTypes.NameIdentifier).Value;
             User currentUser = _libraryDB.Users.First(x => x.UserId == user);
 
-            Loan oldDetails = _libraryDB.Loans.First(x => x.Id == approvalUpdate.Id);
+            Loan oldDetails = _libraryDB.Loans.First(x => x.Id == newDetails.Id);
             Book loanedBook = _libraryDB.Books.First(x => x.Id == oldDetails.BookId);
 
             // update status and comments
-            oldDetails.LoanStatus = approvalUpdate.LoanStatus;
-            oldDetails.LoanerNote = approvalUpdate.LoanerNote;
-            oldDetails.OwnerNote = approvalUpdate.OwnerNote;
+            oldDetails.LoanStatus = newDetails.LoanStatus;
+            oldDetails.LoanerNote = newDetails.LoanerNote;
+            oldDetails.OwnerNote = newDetails.OwnerNote;
 
             // newly approved rentals tasks
             if(oldDetails.LoanStatus && oldDetails.IsDateEmpty() && oldDetails.BookOwner == currentUser.Id)
