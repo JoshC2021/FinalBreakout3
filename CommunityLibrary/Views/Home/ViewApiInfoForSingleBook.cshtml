@@ -121,6 +121,11 @@
                 {
                     <a asp-action="ReviewBook" asp-controller="Home" asp-route-bookId="@Model.key" class="btn btn-outline-primary">Write a review</a>
                 }
+                @if (TempData["reviewsExist"]=="true")
+                {
+                    <a asp-action="ReviewsForThisBook" asp-controller="Home" asp-route-bookId="@Model.key" class="btn btn-outline-primary">See Reviews for this Book</a>
+                }
+              
             </div>
         </div>
     </div>

@@ -6,11 +6,8 @@
         @if (Model.Count == 0)
         {
             <h2>There are no books in your library! Go to the search page to find books you own. Then add them to your library so people can see they are available!</h2>
-            <a asp-action="Search">
-                <button>
-                    Search Now!
-                </button>
-            </a>
+         
+            <a asp-action="Search" asp-controller="Home" class="btn btn-outline-primary">Search Now!</a>
         }
         else
         {
@@ -76,27 +73,20 @@
 
                         </div>
                         <div class="right">
-                            <a asp-action="ViewApiInfoForSingleBook" asp-route-bookId="@book.ApiBook.key">
-                                <button class="right">
-                                    View Book Description
-                                </button>
-                            </a>
+                            <a asp-action="ViewApiInfoForSingleBook" asp-route-bookId="@book.ApiBook.key" asp-controller="Home" class="btn btn-outline-primary">View Book Description</a>
                             <br />
                             @if (book.DbBook.AvailibilityStatus == true)
                             {
 
                                 <p style="color:red">@TempData["DeletingBookWithAssociatedLoans"]</p>
-                                <a asp-action="RemoveFromLibrary" asp-route-bookId="@book.DbBook.Id">
-                                    <button>
-                                        Remove from Your Library
-                                    </button>
-                                </a>
+                                <a asp-action="RemoveFromLibrary" asp-route-bookId="@book.DbBook.Id" asp-controller="Home" class="btn btn-outline-primary">Remove from Your Library</a>
+
                             }
 
                             <form asp-action="EditLoanPeriod" asp-route-bookId="@book.DbBook.Id">
                                 <label style="color:black">Enter the number of days you would allow this book to be checked out. <br />(This will not adjust the due date for any books already checked out)</label>
                                 <input type="number" min="7" name="loanPeriod" />
-                                <input type="submit" name="Edit Loan Period" />
+                                <input type="submit" name="Edit Loan Period" class="btn btn-outline-primary" />
 
                             </form>
 
@@ -122,6 +112,7 @@
             border-radius: 25px;
             display: flex;
             margin: 25px;
+            width:100%;
         }
 
         .box2 {
@@ -133,6 +124,7 @@
 
         .right {
             float: right;
+            align-content:flex-end;
         }
 
         .center {
@@ -141,17 +133,5 @@
             font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
         }
 
-        button {
-            margin: 10px;
-            padding: 10px 20px;
-            border-radius: 5px;
-            border: none;
-            background-color: rgb(249,139,58);
-            color: rgb(17,39,80);
-        }
-
-            button:hover {
-                color: rgb(109,178,164);
-                background-color: rgba(242,107,58, .2);
-            }
+        
     </style>

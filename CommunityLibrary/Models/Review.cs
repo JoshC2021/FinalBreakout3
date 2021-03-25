@@ -9,5 +9,6 @@ namespace CommunityLibrary.Models
     {
         public BookInfo ApiBook { get; set; }
         public BookReview review { get; set; }
+        public User reviewer { get; set; }
     }
 }
