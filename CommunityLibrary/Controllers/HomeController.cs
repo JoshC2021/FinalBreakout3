@@ -762,7 +762,7 @@ namespace CommunityLibrary.Controllers
                     within.Add(other);
                 }
 
-                if (max >= 15)
+                if (max >= 2000)
                 {
                     break;
                 }

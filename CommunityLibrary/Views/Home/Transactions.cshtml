@@ -5,153 +5,435 @@
     int userId = int.Parse(TempData["CurrentUser"].ToString());
     var pending = TempData["Pending"] ?? string.Empty;
     var loaned = TempData["Loaned"] ?? string.Empty;
+    int counter = 0;
+    int historyCounter = 1;
 }
 
-<div class="container py-4">
-    @if(Model.Count<1)
-    {
-    <h2>It looks like you haven't borrowed or loaned any books yet...</h2>
-    }
-    <h2>Your Books</h2>
-    @foreach (LoanRating l in Model.Where(x => x.loan.BookOwner == userId && x.loan.LoanStatus))
-    {
-        <p>Loan #@l.loan.Id</p>
-        int coverId = 0;
-        @if (l.ApiBook.covers is not null)
-        {
-            coverId = l.ApiBook.covers.Where(x => x > 0).First();
-        }
+<div class="border-bottom py-3" style="">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h1 class="">Your Transactions</h1>
+                @if (Model.Count < 1)
+                {
+                    <br />
+                    <h2>It looks like you haven't borrowed or loaned any books yet...</h2>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<div class="py-3">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h3 class="">Books Loaned Out</h3>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="py-1">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12 border-top border-bottom">
+                <div class="table-responsive">
+                    <table class="table table-striped table-borderless">
+                        <thead>
+                            <tr>
+                                <th scope="col" style="" class="">Actions</th>
+                                <th scope="col">Title</th>
+                                <th scope="col" style="">Borrower</th>
+                                <th scope="col">Due Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (LoanRating l in Model.Where(x => x.loan.BookOwner == userId && x.loan.LoanStatus))
+                            {
+                                <tr>
+                                    <th scope="row"><button onclick="displayBook(@counter)" id=myBtn+@counter>...</button></th>
+                                    <td class="">@l.ApiBook.title</td>
+                                    <td>@l.otherUser.UserName</td>
+                                    @if (l.loan.IsDateEmpty())
+                                    {
+                                        <td>Pending</td>
+                                    }
+                                    else
+                                    {
+                                        <td> @l.loan.DueDate.Value.ToShortDateString()</td>
+                                    }
+                                </tr>
 
-        string imgSrc = $"http://covers.openlibrary.org/b/id/{coverId}.jpg";
-        @if (coverId != 0)
-        {
-            <img src=" @imgSrc" alt="@l.ApiBook.title" width="100" />
-        }
-        else
-        {
-            <img width="100" src="https://via.placeholder.com/500x750?text=No+Cover+Found" alt="No book cover image available for @l.ApiBook.title">
-        }
+                                <!-- The Modal -->
+                                <div class="modal" id=myModal+@counter>
 
-        if (l.loan.IsDateEmpty())
-        {
-            <p>@l.otherUser.UserName wants to borrow @l.ApiBook.title: @Html.ActionLink("Approve", "Approval", "Home", new { loanId = l.loan.Id })?</p>
+                                    <!-- Modal content -->
+                                    <div class="modal-content">
+                                        <span class="close" id=remove+@counter></span>
+                                        @{
+                                            <p>Title: @l.ApiBook.title</p>
+                                            <br />
+                                            int coverId = 0;
+                                            if (l.ApiBook.covers is not null)
+                                            {
+                                                coverId = l.ApiBook.covers.Where(x => x > 0).First();
+                                            }
 
-        }
-        else
-        {
-            <p>@l.otherUser.UserName is borrowing @l.ApiBook.title</p>
-            <br />
-            <p>Due: @Html.ActionLink($"{l.loan.DueDate.Value.ToShortDateString()}", "Approval", "Home", new { loanId = l.loan.Id })</p>
+                                            string imgSrc = $"http://covers.openlibrary.org/b/id/{coverId}.jpg";
+                                            if (coverId != 0)
+                                            {
+                                                <img src=" @imgSrc" alt="@l.ApiBook.title" width="100" />
+                                            }
+                                            else
+                                            {
+                                                <img width="100" src="https://via.placeholder.com/500x750?text=No+Cover+Found" alt="No book cover image available for @l.ApiBook.title">
+                                            }
+                                            <br />
 
-        }
-        string email = $"mailto:{l.otherEmail}?subject=Regarding {l.ApiBook.title}";
+                                            if (l.loan.IsDateEmpty())
+                                            {
+                                                <p>@Html.ActionLink("Approve", "Approval", "Home", new { loanId = l.loan.Id })?</p>
+                                            }
+                                            else
+                                            {
+                                                <p>@Html.ActionLink($"View Loan", "Approval", "Home", new { loanId = l.loan.Id })</p>
+                                            }
+                                            <br />
 
-        <a href="@email">Send Email</a>
-        <br />
-    }
+                                            string email = $"mailto:{l.otherEmail}?subject=Regarding {l.ApiBook.title}";
 
-    <h2>Books You Are Borrowing</h2>
-    @foreach (LoanRating l in Model.Where(x => x.loan.BookLoaner == userId && x.loan.LoanStatus))
-    {
-        <p>Loan #@l.loan.Id</p>
-        int coverId = 0;
-        if (l.ApiBook.covers is not null)
-        {
-            coverId = l.ApiBook.covers.Where(x => x > 0).First();
-        }
+                                            <a href="@email">Send Owner Email</a>
+                                            <br />
 
-        string imgSrc = $"http://covers.openlibrary.org/b/id/{coverId}.jpg";
-        if (coverId != 0)
-        {
-            <img src=" @imgSrc" alt="@l.ApiBook.title" width="100" />
-        }
-        else
-        {
-            <img width="100" src="https://via.placeholder.com/500x750?text=No+Cover+Found" alt="No book cover image available for @l.ApiBook.title">
-        }
-        if (l.loan.IsDateEmpty())
-        {
-            <p>@l.otherUser.UserName is reviewing your request to borrow @l.ApiBook.title:  @Html.ActionLink("Pending Details", "Approval", "Home", new { loanId = l.loan.Id })</p>
+                                        }
+                                    </div>
+                                </div>
+                                counter++;
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="py-3" style="">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h3 class="" style="">Books You Are Borrowing</h3>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="py-1 border-top-0 border-bottom-0" style="">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12 border-top border-bottom">
+                <div class="table-responsive">
+                    <table class="table table-striped table-borderless">
+                        <thead>
+                            <tr>
+                                <th scope="col" style="" class="">Actions</th>
+                                <th scope="col">Title</th>
+                                <th scope="col" style="">Owner</th>
+                                <th scope="col">Due Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (LoanRating l in Model.Where(x => x.loan.BookLoaner == userId && x.loan.LoanStatus))
+                            {
+                                <tr>
+                                    <th scope="row"><button onclick="displayBook(@counter)" id=myBtn+@counter>...</button></th>
+                                    <td class="">@l.ApiBook.title</td>
+                                    <td>@l.otherUser.UserName</td>
+                                    @if (l.loan.IsDateEmpty())
+                                    {
+                                        <td>Pending</td>
+                                    }
+                                    else
+                                    {
+                                        <td> @l.loan.DueDate.Value.ToShortDateString()</td>
+                                    }
+                                </tr>
 
-        }
-        else
-        {
-            <p>You are borrowing @l.otherUser.UserName's copy of @l.ApiBook.title</p>
-            <br />
-            <p>It is due:  @Html.ActionLink($"{l.loan.DueDate.Value.ToShortDateString()}", "Approval", "Home", new { loanId = l.loan.Id })</p>
+                                <!-- The Modal -->
+                                <div class="modal" id=myModal+@counter>
 
-        }
+                                    <!-- Modal content -->
+                                    <div class="modal-content">
+                                        <span class="close" id=remove+@counter></span>
+                                        @{
+                                            <p>Title: @l.ApiBook.title</p>
+                                            <br />
+                                            int coverId = 0;
+                                            if (l.ApiBook.covers is not null)
+                                            {
+                                                coverId = l.ApiBook.covers.Where(x => x > 0).First();
+                                            }
 
-        string email = $"mailto:{l.otherEmail}?subject=Regarding {l.ApiBook.title}";
+                                            string imgSrc = $"http://covers.openlibrary.org/b/id/{coverId}.jpg";
+                                            if (coverId != 0)
+                                            {
+                                                <img src=" @imgSrc" alt="@l.ApiBook.title" width="100" />
+                                            }
+                                            else
+                                            {
+                                                <img width="100" src="https://via.placeholder.com/500x750?text=No+Cover+Found" alt="No book cover image available for @l.ApiBook.title">
+                                            }
+                                            <br />
 
-        <a href="@email">Send Email</a>
-        <br />
+                                            if (l.loan.IsDateEmpty())
+                                            {
+                                                <p>@Html.ActionLink("Pending Approval", "Approval", "Home", new { loanId = l.loan.Id })</p>
+                                            }
+                                            else
+                                            {
+                                                <p>@Html.ActionLink($"View Loan", "Approval", "Home", new { loanId = l.loan.Id })</p>
+                                            }
+                                            <br />
 
-    }
+                                            string email = $"mailto:{l.otherEmail}?subject=Regarding {l.ApiBook.title}";
 
-    <h2>Loan History</h2>
-    @foreach (LoanRating l in Model.Where(x => x.loan.LoanStatus == false))
-    {
-        <p>Loan #@l.loan.Id</p>
-        int coverId = 0;
-        @if (l.ApiBook.covers is not null)
-        {
-            coverId = l.ApiBook.covers.Where(x => x > 0).First();
-        }
+                                            <a href="@email">Send Owner Email</a>
+                                            <br />
 
-        string imgSrc = $"http://covers.openlibrary.org/b/id/{coverId}.jpg";
-        @if (coverId != 0)
-        {
-            <img src=" @imgSrc" alt="@l.ApiBook.title" width="100" />
-        }
-        else
-        {
-            <img width="100" src="https://via.placeholder.com/500x750?text=No+Cover+Found" alt="No book cover image available for @l.ApiBook.title">
-        }
-        @Html.ActionLink("More Details", "Approval", "Home", new { loanId = l.loan.Id })
+                                        }
+                                    </div>
+                                </div>
+                                counter++;
+                            }
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="py-3">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h3 class="">Loan History</h3>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="py-1" style="">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12 border-top border-bottom">
+                <div class="table-responsive">
+                    <table class="table table-striped table-borderless">
+                        <thead>
+                            <tr>
+                                <th scope="col" style="" class="">Actions</th>
+                                <th scope="col" style="" class="">#</th>
+                                <th scope="col">Title</th>
+                                <th scope="col" style="">My Rating</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (LoanRating l in Model.Where(x => x.loan.LoanStatus == false))
+                            {
+                            <tr>
+                                <th scope="row"><button onclick="displayBook(@counter)" id=myBtn+@counter>...</button></th>
+                                <td class="">@historyCounter</td>
+                                <td class="">@l.ApiBook.title</td>
+                                @if (l.loan.IsOwner(l.currentUser.Id))
+                                {
+                                    if (@l.loan.OwnerRating != 0)
+                                    {
+                                        <td>@l.loan.OwnerRating</td>
+                                    }
+                                    else
+                                    {
+                                        <td>N/A</td>
+                                    }
+                                }
+                                else
+                                {
+                                    if (@l.loan.RecipientRating != 0)
+                                    {
+                                        <td> @l.loan.RecipientRating</td>
+                                    }
+                                    else
+                                    {
+                                        <td>N/A</td>
+                                    }
+                                }
+                            </tr>
+
+                                <!-- The Modal -->
+                                <div class="modal" id=myModal+@counter>
+
+                                    <!-- Modal content -->
+                                    <div class="modal-content">
+                                        <span class="close" id=remove+@counter></span>
+                                        @{
+                                            <p>Title: @l.ApiBook.title</p>
+                                            <br />
+                                            int coverId = 0;
+                                            if (l.ApiBook.covers is not null)
+                                            {
+                                                coverId = l.ApiBook.covers.Where(x => x > 0).First();
+                                            }
+
+                                            string imgSrc = $"http://covers.openlibrary.org/b/id/{coverId}.jpg";
+                                            if (coverId != 0)
+                                            {
+                                                <img src=" @imgSrc" alt="@l.ApiBook.title" width="100" />
+                                            }
+                                            else
+                                            {
+                                                <img width="100" src="https://via.placeholder.com/500x750?text=No+Cover+Found" alt="No book cover image available for @l.ApiBook.title">
+                                            }
+                                            <br />
+
+                                            
+                                            <p>@Html.ActionLink($"View Loan", "Approval", "Home", new { loanId = l.loan.Id })</p>
+                                           
+                                            <br />
+
+                                            @if (l.loan.BookOwner == userId)
+                                            {
+                                                <p>@l.otherUser.UserName borrowed "@l.ApiBook.title" from you!</p>
+                                                if (l.loan.RecipientRating == 0)
+                                                {
 
 
-        @if (l.loan.BookOwner == userId)
-        {
-            <p>@l.otherUser.UserName borrowed "@l.ApiBook.title" from you!</p>
-            if (l.loan.RecipientRating == 0)
-            {
+                                                    <a asp-action="RateLoan" asp-route-loanId="@l.loan.Id">
+                                                        <button>
+                                                            Rate your borrower
+                                                        </button>
+                                                    </a>
+                                                }
+                                            }
+                                            else if (l.loan.BookLoaner == userId)
+                                            {
+                                                <p>You borrowed "@l.ApiBook.title" from @l.otherUser.UserName</p>
+                                                if (l.loan.OwnerRating == 0)
+                                                {
 
+                                                    <a asp-action="RateLoan" asp-route-loanId="@l.loan.Id">
+                                                        <button>
+                                                            Rate your lender
+                                                        </button>
+                                                    </a>
+                                                }
+                                            }
+                                            <br />
 
-                <a asp-action="RateLoan" asp-route-loanId="@l.loan.Id">
-                    <button>
-                        Rate your borrower
-                    </button>
-                </a>
-            }
-        }
-        else if (l.loan.BookLoaner == userId)
-        {
-            <p>You borrowed "@l.ApiBook.title" from @l.otherUser.UserName</p>
-            if (l.loan.OwnerRating == 0)
-            {
-
-                <a asp-action="RateLoan" asp-route-loanId="@l.loan.Id">
-                    <button>
-                        Rate your lender
-                    </button>
-                </a>
-            }
-        }
-
-
-    }
+                                        }
+                                    </div>
+                                </div>
+                                                counter++;
+                                                historyCounter++;
+                                       }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
+
+
+
+
+
+
+
+
+
+<style>
+    /* The Modal (background) */
+    .modal {
+        display: none; /* Hidden by default */
+        position: fixed; /* Stay in place */
+        z-index: 1; /* Sit on top */
+        padding-top: 100px; /* Location of the box */
+        left: 0;
+        top: 0;
+        width: 60%; /* Full width */
+        height: 100%; /* Full height */
+        overflow: auto; /* Enable scroll if needed */
+    }
+
+    /* Modal Content */
+    .modal-content {
+        background-color: #fefefe;
+        margin: auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 60%;
+    }
+
+    /* The Close Button */
+    .close {
+        color: #aaaaaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+        .close:hover,
+        .close:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+</style>
+
+
+
+<script>
+    // function for Modal
+
+
+    // declare variables
+    var modal, span, num1, num2;
+
+    // When the user clicks the button, open the modal
+    function displayBook(value) {
+
+        num1 = "myModal+" + value;
+        // Get the modal
+        modal = document.getElementById(num1);
+
+        modal.style.display = "block";
+    }
+
+    // Get the <span> element that closes the modal
+    span = document.getElementsByClassName("close")[0];
+
+    modal = document.getElementsByClassName("modal")[0];
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function () {
+        modal.style.display = "none";
+    }
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function (event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+</script>
+
 <script type="text/javascript">
+
+    // function to display error messages
     var message = '@pending';
+    var otherMessage = '@loaned';
     if (message)
     {
         alert(message);
     }
-    message = '@loaned';
-    if (message) {
-        alert(message);
+    if (otherMessage)
+    {
+        alert(otherMessage);
     }
 
 </script>
