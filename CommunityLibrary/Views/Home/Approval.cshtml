@@ -4,11 +4,9 @@
     <div class="container">
         <div class="row">
             <div class="col-12 col-md-12" style="">
-                <h2>Transactions<br></h2>
-                <hr>
                 <div class="row bg-light p-3 my-3">
                     <div class="col-md-2">
-                        <img class="img-fluid d-block" src="@Model.CurrentUser.ProfileImage">
+                        <img class="img-fluid d-block profile-image" src="@Model.BookBorrower.ProfileImage">
                         <div class="row">
                             <div class="col-md-12">
                                 <p class="text-center my-2 mx-auto"><a href="#">@Model.BookBorrower.UserName</a></p>
@@ -27,9 +25,24 @@
                                     <br />
                                     <b>Owner</b>: @Model.BookOwner.UserName
                                     <br />
-                                    <b>Status</b>: <span class="text-danger"><strong>Pending. FAKE. Please approve or decline this request.</strong></span>
-                                    <br />
-                                    <b>Status</b>: @Model.CurrentState.ToString()
+                                    @if (Model.CurrentState != CommunityLibrary.ViewModels.CurrentState.Pending)
+                                    {
+                                        <b>Due Date</b><text>: </text> @Model.Loan.DueDate.Value.ToShortDateString()
+                                        <br />
+                                    }
+                                    <b>Status</b>:
+                                    @if (Model.CurrentState == CommunityLibrary.ViewModels.CurrentState.Pending && Model.CurrentUser == Model.BookOwner)
+                                    {
+                                        <span class="text-danger"><strong>Pending. Please approve or decline this request.</strong></span>
+                                    }
+                                    else if (Model.CurrentState == CommunityLibrary.ViewModels.CurrentState.CheckedOut)
+                                    {
+                                        <text>Checked Out</text>
+                                    }
+                                    else
+                                    {
+                                        <text>@Model.CurrentState.ToString()</text>
+                                    }
                                 </p>
                                 </p>
                                 <hr>
@@ -40,7 +53,7 @@
                                 @if (Model.Loan.LoanerNote is not null)
                                 {
                                     <div class="chat-bubble-container-them">
-                                        <p class="bubble">@Model.Loan.OwnerNote<br />- @Model.BookBorrower.UserName</p>
+                                        <p class="bubble">@Model.Loan.LoanerNote<br />- @Model.BookBorrower.UserName</p>
                                     </div>
                                 }
                             </div>
@@ -66,13 +79,12 @@
                                             @if (Model.Loan.OwnerNote is null)
                                             {
                                                 <label>Add a message (optional, 140 characters max)</label>
-                                                <input type="text" class="form-control" placeholder="Write your message...">
                                             }
                                             else
                                             {
                                                 <label>You may edit your message above (optional, 140 characters max)</label>
-                                                <input type="text" class="form-control" placeholder="Write your message...">
                                             }
+                                            <textarea class="form-control" placeholder="Write your message..." maxlength="139"></textarea>
                                         </div>
                                     </div>
                                 </div>
@@ -83,18 +95,68 @@
                             }
                             else if (Model.CurrentState == CommunityLibrary.ViewModels.CurrentState.CheckedOut)
                             {
-                                <p>owner logged in, checked out</p>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            @if (Model.Loan.OwnerNote is null)
+                                            {
+                                                <label>Add a message (optional, 140 characters max)</label>
+                                            }
+                                            else
+                                            {
+                                                <label>You may edit your message above (optional, 140 characters max)</label>
+                                            }
+                                            <textarea class="form-control" placeholder="Write your message..." maxlength="139"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mt-3">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>Has @Model.BookBorrower.UserName returned this book?</label>
+                                            <select class="form-control" required>
+                                                <option selected>Choose...</option>
+                                                <option value="false">No, the book has not been returned</option>
+                                                <option value="true">Yes, the book has been returned</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row my-2">
+                                    <div class="col-md-12">
+                                        <button type="submit" class="btn btn-primary w-100">Save</button>
+                                    </div>
+                                </div>
                             }
                             else if (Model.CurrentState == CommunityLibrary.ViewModels.CurrentState.Returned)
                             {
-                                <p>owner logged in, returned</p>
+                                // rate your experience null check and link?
                             }
                         }
                         else if (Model.CurrentUser == Model.BookBorrower)
                         {
                             if (Model.CurrentState == CommunityLibrary.ViewModels.CurrentState.Pending)
                             {
-                                <p>borrower logged in, pending</p>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            @if (Model.Loan.LoanerNote is null)
+                                            {
+                                                <label>Add a message (optional, 140 characters max)</label>
+                                            }
+                                            else
+                                            {
+                                                <label>You may edit your message above (optional, 140 characters max)</label>
+                                            }
+                                            <textarea class="form-control" placeholder="Write your message..." maxlength="139"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row my-2">
+                                    <div class="col-md-12">
+                                        <button type="submit" class="btn btn-primary w-100">Save</button>
+                                    </div>
+                                </div>
                             }
                             else if (Model.CurrentState == CommunityLibrary.ViewModels.CurrentState.CheckedOut)
                             {
@@ -105,16 +167,6 @@
                                 <p>borrower logged in, returned</p>
                             }
                         }
-
-                        @*                        <div class="row mt-3">
-                                <div class="col-md-12">
-                                    <div class="form-group"> <label>Edit your message above (optional, 140 characters max)</label> <input type="text" class="form-control" placeholder="Write your message..."> </div>
-                                </div>
-                            </div>
-                            <div class="row my-2">
-                                <div class="col-md-6"><a class="btn btn-primary w-100" href="#" contenteditable="true"><i class="fa fa-fw fa-check"></i>Approve</a></div>
-                                <div class="col-md-6"><a class="btn w-100 btn-outline-primary" href="#"><i class="fa fa-fw fa-times-circle"></i>&nbsp;Decline</a></div>
-                            </div>*@
 
                     </div>
                 </div>
